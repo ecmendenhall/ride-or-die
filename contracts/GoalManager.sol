@@ -23,6 +23,9 @@ contract GoalManager {
     }
 
     function createGoal(uint256 target, uint256 stake) public {
+        require(goals[msg.sender].target == 0, "Goal already set");
+        require(token.balanceOf(msg.sender) >= stake, "Insufficient balance");
+
         Goal memory goal = Goal({
             target: target,
             stake: stake,
@@ -30,6 +33,7 @@ contract GoalManager {
             expires: block.timestamp + 30 days
         });
         goals[msg.sender] = goal;
+
         token.safeTransferFrom(msg.sender, address(this), stake);
     }
 }
