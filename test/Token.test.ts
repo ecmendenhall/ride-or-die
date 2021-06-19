@@ -7,7 +7,7 @@ describe("Token", function() {
     const Token = await ethers.getContractFactory("Token");
     const token = await Token.deploy();
 
-    expect(await token.name()).to.equal("My cool token");
+    expect(await token.name()).to.equal("My rad token");
   });
 
 });
