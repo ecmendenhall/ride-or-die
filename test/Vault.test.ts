@@ -4,7 +4,9 @@ import { parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 
 describe("Vault", function () {
-  let depositor,
+  let owner,
+    staker,
+    thirdParty,
     mockDai,
     mock3crv,
     mockCurveDepositZap,
@@ -12,7 +14,7 @@ describe("Vault", function () {
     vault;
 
   beforeEach(async function () {
-    [depositor] = await ethers.getSigners();
+    [owner, staker, thirdParty] = await ethers.getSigners();
 
     const MockDai = await ethers.getContractFactory("MockERC20");
     mockDai = await MockDai.deploy("Mock Dai", "DAI");
@@ -47,20 +49,53 @@ describe("Vault", function () {
       expect(await vault.stakeDAOvault()).to.equal(mockStakeDAOvault.address);
     });
 
-    it("Has a DAI address", async function () {
+    it("Has the DAI token address", async function () {
       expect(await vault.dai()).to.equal(mockDai.address);
+    });
+
+    it("Has the 3Crv token address", async function () {
+      expect(await vault.threeCrv()).to.equal(mock3crv.address);
     });
   });
 
   describe("Deposits", async function () {
-    it("Accepts DAI deposits, returns vault shares", async function () {
+    beforeEach(async function () {
       let deposit = parseEther("2500");
-      await mockDai.mint(depositor.address, deposit);
-      await mockDai.connect(depositor).approve(vault.address, deposit);
-      await vault.connect(depositor).deposit(deposit);
-      expect(await vault.balanceOf(depositor.address)).to.equal(
+      await mockDai.mint(owner.address, deposit);
+      await mockDai.connect(owner).approve(vault.address, deposit);
+      await vault.connect(owner).deposit(staker.address, deposit);
+    });
+
+    it("Accepts DAI deposits, returns vault shares", async function () {
+      expect(await vault.balanceOf(staker.address)).to.equal(
         parseEther("2469.135802469135802469")
       );
+    });
+
+    it("Only owner can deposit", async function () {
+      let deposit = parseEther("2500");
+      await mockDai.mint(staker.address, deposit);
+      await mockDai.connect(staker).approve(vault.address, deposit);
+      expect(
+        vault.connect(staker).deposit(staker.address, deposit)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("Vault shares are nontransferrable with transfer", async function () {
+      expect(
+        vault.connect(staker).transfer(thirdParty.address, parseEther("2469"))
+      ).to.be.revertedWith("Token is nontransferrable");
+    });
+
+    it("transferFrom cannot send shares to third parties", async function () {
+      await vault
+        .connect(staker)
+        .increaseAllowance(thirdParty.address, parseEther("2469"));
+      expect(
+        vault
+          .connect(thirdParty)
+          .transferFrom(staker.address, thirdParty.address, parseEther("2469"))
+      ).to.be.revertedWith("Unauthorized");
     });
   });
 });
