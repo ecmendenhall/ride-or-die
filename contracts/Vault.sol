@@ -16,8 +16,7 @@ interface StakeDAOVault is IERC20 {
 
 interface Curve3Pool {
     function add_liquidity(uint256[3] calldata amounts, uint256 min_mint_amount)
-        external
-        returns (uint256);
+        external;
 
     function remove_liquidity_one_coin(
         uint256 _token_amount,
@@ -57,7 +56,12 @@ contract Vault is Ownable, ERC20 {
 
         // Deposit DAI in Curve 3Pool
         dai.safeIncreaseAllowance(address(curve3Pool), amount);
-        uint256 threeCrvAmount = curve3Pool.add_liquidity([amount, 0, 0], 0);
+        uint256 threeCrvBalanceBefore = threeCrv.balanceOf(address(this));
+        curve3Pool.add_liquidity([amount, 0, 0], 0);
+        uint256 threeCrvBalanceAfter = threeCrv.balanceOf(address(this));
+        uint256 threeCrvAmount = threeCrvBalanceAfter.sub(
+            threeCrvBalanceBefore
+        );
 
         // Deposit 3Crv LP token in StakeDAO vault
         threeCrv.safeIncreaseAllowance(address(stakeDAOvault), threeCrvAmount);
