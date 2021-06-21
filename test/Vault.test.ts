@@ -9,7 +9,7 @@ describe("Vault", function () {
     thirdParty,
     mockDai,
     mock3crv,
-    mockCurveDepositZap,
+    mockCurve3Pool,
     mockStakeDAOvault,
     vault;
 
@@ -22,10 +22,8 @@ describe("Vault", function () {
     const Mock3Crv = await ethers.getContractFactory("MockERC20");
     mock3crv = await Mock3Crv.deploy("Mock 3Crv", "3Crv");
 
-    const MockCurveDepositZap = await ethers.getContractFactory(
-      "MockCurveDepositZap"
-    );
-    mockCurveDepositZap = await MockCurveDepositZap.deploy(
+    const MockCurve3Pool = await ethers.getContractFactory("MockCurve3Pool");
+    mockCurve3Pool = await MockCurve3Pool.deploy(
       mockDai.address,
       mock3crv.address
     );
@@ -40,7 +38,7 @@ describe("Vault", function () {
       mockStakeDAOvault.address,
       mockDai.address,
       mock3crv.address,
-      mockCurveDepositZap.address
+      mockCurve3Pool.address
     );
   });
 
@@ -96,6 +94,37 @@ describe("Vault", function () {
           .connect(thirdParty)
           .transferFrom(staker.address, thirdParty.address, parseEther("2469"))
       ).to.be.revertedWith("Unauthorized");
+    });
+  });
+
+  describe("Withdrawals", async function () {
+    beforeEach(async function () {
+      let deposit = parseEther("2500");
+      await mockDai.mint(owner.address, deposit);
+      await mockDai.connect(owner).approve(vault.address, deposit);
+      await vault.connect(owner).deposit(staker.address, deposit);
+    });
+
+    it("Only owner can withdraw", async function () {
+      expect(
+        vault.connect(staker).withdraw(staker.address, parseEther("1000"))
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("Withdrawal burns vault shares", async function () {
+      await vault.connect(owner).withdraw(staker.address, parseEther("1000"));
+      expect(await vault.balanceOf(staker.address)).to.equal(
+        parseEther("1469.135802469135802469")
+      );
+    });
+
+    it("Withdrawal returns Dai value of vault shares, minus Curve withdrawal slippage", async function () {
+      let fullBalance = await vault.balanceOf(staker.address);
+      await vault.connect(owner).withdraw(staker.address, fullBalance);
+      expect(await vault.balanceOf(staker.address)).to.equal(0);
+      expect(await mockDai.balanceOf(staker.address)).to.equal(
+        parseEther("2497.50")
+      );
     });
   });
 });
