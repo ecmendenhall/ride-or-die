@@ -24,17 +24,19 @@ contract MockCurve3Pool {
 
     function add_liquidity(uint256[3] calldata amounts, uint256 min_mint_amount)
         external
+        returns (uint256)
     {
         dai.safeTransferFrom(msg.sender, address(this), amounts[0]);
         uint256 lpTokens = amounts[0].mul(1e18).div(virtualPrice);
         threeCrv.mint(msg.sender, lpTokens);
+        return lpTokens;
     }
 
     function remove_liquidity_one_coin(
         uint256 _token_amount,
         int128 i,
         uint256 min_amount
-    ) external {
+    ) external returns (uint256) {
         threeCrv.safeTransferFrom(msg.sender, address(this), _token_amount);
         uint256 daiAmount = virtualPrice.mul(_token_amount).div(1e18);
         uint256 slippage = daiAmount.mul(slippageBps).div(BPS_DENOMINATOR);
