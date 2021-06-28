@@ -13,8 +13,8 @@ describe("GoalManager", function () {
   beforeEach(async function () {
     [goalSetter] = await ethers.getSigners();
 
-    const MockDai = await ethers.getContractFactory("MockDai");
-    mockDai = await MockDai.deploy();
+    const MockDai = await ethers.getContractFactory("MockERC20");
+    mockDai = await MockDai.deploy("Mock Dai", "DAI");
 
     const GoalManager = await ethers.getContractFactory("GoalManager");
     goalManager = await GoalManager.deploy(mockDai.address);
