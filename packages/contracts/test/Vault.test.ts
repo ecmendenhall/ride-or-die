@@ -2,16 +2,18 @@ import { expect } from "chai";
 import { waffle, ethers } from "hardhat";
 import { parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { MockERC20, MockCurve3Pool, MockStakeDAOVault, Vault } from "../typechain";
 
 describe("Vault", function () {
-  let owner,
-    staker,
-    thirdParty,
-    mockDai,
-    mock3crv,
-    mockCurve3Pool,
-    mockStakeDAOvault,
-    vault;
+  let owner : SignerWithAddress,
+    staker : SignerWithAddress,
+    thirdParty : SignerWithAddress,
+    mockDai : MockERC20,
+    mock3crv : MockERC20,
+    mockCurve3Pool : MockCurve3Pool,
+    mockStakeDAOvault : MockStakeDAOVault,
+    vault : Vault;
 
   beforeEach(async function () {
     [owner, staker, thirdParty] = await ethers.getSigners();
