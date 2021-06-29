@@ -1,5 +1,9 @@
 import request, { Response } from "supertest";
 import app from "./app";
+import strava from "./src/strava";
+
+jest.mock('./src/strava');
+const mockStrava = strava as jest.Mocked<typeof strava>;
 
 describe("API", () => {
   describe("/authenticate", () => {
@@ -8,7 +12,8 @@ describe("API", () => {
       let redirectUri: URL;
 
       beforeEach(async () => {
-        response = await request(app).get("/authenticate");
+        mockStrava.authURL.mockReturnValue("https://strava.com/oauth/authorize?client_id=12345&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthenticate%2Fcomplete&response_type=code&scope=read%2Cactivity%3Aread&approval_prompt=force");
+        response = await request(app).get("/link-strava");
         redirectUri = new URL(response.headers.location);
       });
 
@@ -47,19 +52,33 @@ describe("API", () => {
     });
 
     describe("/complete", () => {
+
+      beforeEach(() => {
+        mockStrava.getToken.mockResolvedValue({
+          athlete: {id: 5}
+        });
+      });
+
       describe("success", () => {
         it("returns a 200 OK", async () => {
           let response = await request(app)
-            .get("/authenticate/complete")
+            .get("/link-strava/complete")
             .query({ code: "abc123", scope: "read,activity:read" });
           expect(response.statusCode).toBe(200);
+        });
+
+        it("creates a User with associated Strava ID and token", async () => {
+          let response = await request(app)
+            .get("/link-strava/complete")
+            .query({ code: "abc123", scope: "read,activity:read" });
+          expect(response.body).toEqual({id: 5});
         });
       });
 
       describe("error", () => {
         it("returns a 403 Forbidden", async () => {
           let response = await request(app)
-            .get("/authenticate/complete")
+            .get("/link-strava/complete")
             .query({ error: "access_denied" });
           expect(response.statusCode).toBe(403);
         });

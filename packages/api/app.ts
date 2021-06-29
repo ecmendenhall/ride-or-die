@@ -6,11 +6,11 @@ import strava from "./src/strava";
 
 const app = express();
 
-app.get("/authenticate", (req, res) => {
+app.get("/link-strava", (req, res) => {
   res.redirect(302, strava.authURL());
 });
 
-app.get("/authenticate/complete", async (req, res) => {
+app.get("/link-strava/complete", async (req, res) => {
   if (req.query.error) {
     res.status(403).send("Forbidden");
   } else {
