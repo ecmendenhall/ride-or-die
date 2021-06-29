@@ -1,0 +1,41 @@
+{
+  "name": "@ride-or-die/contracts",
+  "version": "0.1.0",
+  "description": "Ride or Die smart contracts",
+  "author": "Connor Mendenhall <cmendenhall@8thlight.com>",
+  "homepage": "https://github.com/ecmendenhall/hackmoney#readme",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.1",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@openzeppelin/contracts": "^3.4.0",
+    "@typechain/ethers-v5": "^7.0.0",
+    "@typechain/hardhat": "^2.0.0",
+    "@types/chai": "^4.2.16",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.41",
+    "chai": "^4.3.0",
+    "ethereum-waffle": "^3.2.2",
+    "ethers": "^5.0.31",
+    "hardhat": "^2.0.10",
+    "lerna": "^4.0.0",
+    "prettier": "^2.2.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.5",
+    "ts-generator": "^0.1.1",
+    "ts-node": "^9.1.1",
+    "typechain": "^5.0.0",
+    "typescript": "^4.2.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ecmendenhall/hackmoney.git"
+  },
+  "scripts": {
+    "hardhat": "hardhat",
+    "test": "hardhat test",
+    "ci": "hardhat clean; hardhat compile; hardhat test"
+  },
+  "bugs": {
+    "url": "https://github.com/ecmendenhall/hackmoney/issues"
+  }
+}

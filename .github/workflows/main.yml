@@ -10,7 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install dependencies
+      - name: Install monorepo dependencies
         run: npm ci
+      - name: Install package dependencies
+        run: npx lerna bootstrap
       - name: Run tests
-        run: npx hardhat test
+        run: npx lerna run ci

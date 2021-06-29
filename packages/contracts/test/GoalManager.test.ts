@@ -2,15 +2,17 @@ import { expect } from "chai";
 import { waffle, ethers } from "hardhat";
 import { parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { MockERC20, GoalManager } from '../typechain';
 
 describe("GoalManager", function () {
   const STAKE_AMOUNT = parseEther("2500");
   const IPFS_CID =
     "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi";
 
-  let goalSetter;
-  let mockDai;
-  let goalManager;
+  let goalSetter : SignerWithAddress;
+  let mockDai : MockERC20;
+  let goalManager : GoalManager;
 
   beforeEach(async function () {
     [goalSetter] = await ethers.getSigners();
@@ -23,7 +25,7 @@ describe("GoalManager", function () {
 
     await mockDai.burnFrom(
       goalSetter.address,
-      mockDai.balanceOf(goalSetter.address)
+      await mockDai.balanceOf(goalSetter.address)
     );
     await mockDai.mint(goalSetter.address, STAKE_AMOUNT);
     await mockDai
@@ -45,7 +47,7 @@ describe("GoalManager", function () {
       let [target, stake, created, expires] = await goalManager.goals(1);
 
       expect(target).to.equal(100);
-      expect(expires - created).to.equal(30 * 24 * 60 * 60);
+      expect(expires.sub(created)).to.equal(30 * 24 * 60 * 60);
       expect(stake).to.equal(STAKE_AMOUNT);
     });
 
