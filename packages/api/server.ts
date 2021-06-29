@@ -1,12 +1,12 @@
 import { createConnection } from "typeorm";
-import app from './app';
+import app from "./app";
 
+const PORT = 3000;
 
-createConnection().then(async connection => {
-  const port = 3000;
-
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}.`);
-  });
-
-}).catch(error => console.log(error));
+createConnection()
+  .then(async (connection) => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}.`);
+    });
+  })
+  .catch((error) => console.log(error));
