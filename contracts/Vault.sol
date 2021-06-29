@@ -39,7 +39,7 @@ contract Vault is Ownable, ERC20 {
         address _dai,
         address _threeCrv,
         address _curve3Pool
-    ) ERC20("Commitment Contract Staking Vault", "cc-sd3Crv") {
+    ) ERC20("Ride or Die Staking Vault", "RIDE-sd3Crv") {
         stakeDAOvault = StakeDAOVault(_stakeDAOvault);
         dai = IERC20(_dai);
         threeCrv = IERC20(_threeCrv);
