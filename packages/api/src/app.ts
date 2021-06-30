@@ -4,8 +4,25 @@ import express from "express";
 import config from "../config";
 import strava from "./strava";
 import users from "./users";
+import auth from "./auth";
 
 const app = express();
+app.use(express.json());
+
+app.post("/login", async (req, res) => {
+  let user = await auth.logIn(req.body.address);
+  res.status(200).send({ nonce: user?.session?.nonce });
+});
+
+app.post("/login/sign", async (req, res) => {
+  let { address, signature } = req.body;
+  let authenticated = await auth.verifySignature(address, signature);
+  if (authenticated) {
+    res.status(200).send();
+  } else {
+    res.status(401).send();
+  }
+});
 
 app.get("/link-strava", (req, res) => {
   res.redirect(302, strava.authURL());

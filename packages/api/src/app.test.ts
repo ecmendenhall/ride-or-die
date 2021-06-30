@@ -2,6 +2,8 @@ import request, { Response } from "supertest";
 import app from "./app";
 import strava from "./strava";
 import users from "./users";
+import auth from "./auth";
+import { User } from "./entity/User";
 
 jest.mock("./strava");
 const mockStrava = strava as jest.Mocked<typeof strava>;
@@ -9,8 +11,56 @@ const mockStrava = strava as jest.Mocked<typeof strava>;
 jest.mock("./users");
 const mockUsers = users as jest.Mocked<typeof users>;
 
+jest.mock("./auth");
+const mockAuth = auth as jest.Mocked<typeof auth>;
+
 describe("API", () => {
-  describe("/authenticate", () => {
+  describe("/login", () => {
+    describe("POST", () => {
+      beforeEach(() => {
+        let user = { id: 1 } as User;
+        user.session = {
+          id: 1,
+          nonce: "abc123",
+          expires: 1625092608,
+          user: user,
+        };
+        mockAuth.logIn.mockResolvedValue(user);
+      });
+
+      it("returns a nonce to sign", async () => {
+        let response = await request(app)
+          .post("/login")
+          .send({ address: "0x1" })
+          .set("Content-Type", "application/json");
+        expect(response.body).toStrictEqual({ nonce: "abc123" });
+      });
+    });
+
+    describe("/login/sign", () => {
+      describe("POST", () => {
+        it("returns 200 on valid signature", async () => {
+          mockAuth.verifySignature.mockResolvedValue(true);
+          let response = await request(app)
+            .post("/login/sign")
+            .send({ address: "0x1", signature: "abc123" })
+            .set("Content-Type", "application/json");
+          expect(response.statusCode).toBe(200);
+        });
+
+        it("returns 401 on invalid signature", async () => {
+          mockAuth.verifySignature.mockResolvedValue(false);
+          let response = await request(app)
+            .post("/login/sign")
+            .send({ address: "0x1", signature: "abc123" })
+            .set("Content-Type", "application/json");
+          expect(response.statusCode).toBe(401);
+        });
+      });
+    });
+  });
+
+  describe("/link-strava", () => {
     describe("GET", () => {
       let response: Response;
       let redirectUri: URL;

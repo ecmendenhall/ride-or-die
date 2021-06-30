@@ -74,7 +74,10 @@ describe("auth module", () => {
 
     it("rejects invalid signatures", async () => {
       let signer = ethers.Wallet.createRandom();
-      let rando = ethers.Wallet.createRandom();
+      let rando = ethers.Wallet.fromMnemonic(
+        "radar blur cabbage chef fix engine embark joy scheme fiction master release"
+      );
+      expect(signer.address).not.toBe(rando.address);
       let user = await auth.logIn(signer.address);
       let nonce = user?.session?.nonce || "";
       let signature = await rando.signMessage(nonce);
