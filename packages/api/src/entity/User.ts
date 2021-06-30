@@ -7,6 +7,7 @@ import {
   JoinColumn,
 } from "typeorm";
 import { Token } from "./Token";
+import { Session } from "./Session";
 
 @Entity()
 export class User {
@@ -23,4 +24,8 @@ export class User {
   @OneToOne(() => Token, (token) => token.user)
   @JoinColumn()
   token?: Token;
+
+  @OneToOne(() => Session, (session) => session.user)
+  @JoinColumn()
+  session?: Session;
 }

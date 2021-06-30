@@ -13,7 +13,10 @@ const create = async (params: UserParams) => {
 };
 
 const find = async (address: string) => {
-  return getRepository(User).findOne({ address: address });
+  return getRepository(User).findOne(
+    { address: address },
+    { relations: ["session"] }
+  );
 };
 
 export default {
