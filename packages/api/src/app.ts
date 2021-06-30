@@ -18,8 +18,8 @@ app.get("/link-strava/complete", async (req, res) => {
     let code = req.query.code as string;
     let responseData = await strava.getToken(code);
     await users.create({
-      address: '0x1',
-      stravaId: responseData.athlete.id
+      address: "0x1",
+      stravaId: responseData.athlete.id,
     });
     res.status(200).send(responseData.athlete);
   }

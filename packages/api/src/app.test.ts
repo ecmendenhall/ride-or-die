@@ -3,10 +3,10 @@ import app from "./app";
 import strava from "./strava";
 import users from "./users";
 
-jest.mock('./strava');
+jest.mock("./strava");
 const mockStrava = strava as jest.Mocked<typeof strava>;
 
-jest.mock('./users');
+jest.mock("./users");
 const mockUsers = users as jest.Mocked<typeof users>;
 
 describe("API", () => {
@@ -16,7 +16,9 @@ describe("API", () => {
       let redirectUri: URL;
 
       beforeEach(async () => {
-        mockStrava.authURL.mockReturnValue("https://strava.com/oauth/authorize?client_id=12345&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthenticate%2Fcomplete&response_type=code&scope=read%2Cactivity%3Aread&approval_prompt=force");
+        mockStrava.authURL.mockReturnValue(
+          "https://strava.com/oauth/authorize?client_id=12345&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthenticate%2Fcomplete&response_type=code&scope=read%2Cactivity%3Aread&approval_prompt=force"
+        );
         response = await request(app).get("/link-strava");
         redirectUri = new URL(response.headers.location);
       });
@@ -56,15 +58,14 @@ describe("API", () => {
     });
 
     describe("/complete", () => {
-
       beforeEach(() => {
         mockStrava.getToken.mockResolvedValue({
-          athlete: {id: 5}
+          athlete: { id: 5 },
         });
         mockUsers.create.mockResolvedValue({
           id: 1,
-          address: '0x1',
-          stravaId: 5
+          address: "0x1",
+          stravaId: 5,
         });
       });
 
@@ -80,7 +81,7 @@ describe("API", () => {
           let response = await request(app)
             .get("/link-strava/complete")
             .query({ code: "abc123", scope: "read,activity:read" });
-          expect(response.body).toEqual({id: 5});
+          expect(response.body).toEqual({ id: 5 });
         });
 
         it("creates a User with associated Strava ID and token", async () => {
@@ -89,7 +90,7 @@ describe("API", () => {
             .query({ code: "abc123", scope: "read,activity:read" });
           expect(mockUsers.create).toHaveBeenCalledWith({
             address: "0x1",
-            stravaId: 5
+            stravaId: 5,
           });
         });
       });

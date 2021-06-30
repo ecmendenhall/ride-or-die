@@ -9,6 +9,6 @@ export class User {
   @Index({ unique: true })
   address?: string;
 
-  @Column({ unique: true, nullable: true})
+  @Column({ unique: true, nullable: true })
   stravaId?: number;
 }

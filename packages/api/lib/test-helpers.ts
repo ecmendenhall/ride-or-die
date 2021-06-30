@@ -1,6 +1,6 @@
-import {createConnection, getConnection, ConnectionOptions} from 'typeorm';
+import { createConnection, getConnection, ConnectionOptions } from "typeorm";
 
-const TEST_DB_CONFIG : ConnectionOptions = {
+const TEST_DB_CONFIG: ConnectionOptions = {
   type: "postgres",
   host: "localhost",
   port: 5432,
@@ -8,7 +8,7 @@ const TEST_DB_CONFIG : ConnectionOptions = {
   synchronize: true,
   dropSchema: true,
   entities: ["src/entity/**/*.ts"],
-  migrations: ["src/migration/**/*.ts"]
+  migrations: ["src/migration/**/*.ts"],
 };
 
 export default {
@@ -23,7 +23,6 @@ export default {
 
     async clear() {
       await getConnection().synchronize(true);
-    }
-
-  }
+    },
+  },
 };
