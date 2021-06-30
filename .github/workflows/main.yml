@@ -13,7 +13,7 @@ jobs:
         image: postgres:13
         env:
           POSTGRES_USER: runner
-          POSTGRES_DB: ride-or-die
+          POSTGRES_DB: ride_or_die_test
           POSTGRES_HOST_AUTH_METHOD: trust
         options: >-
           --health-cmd pg_isready

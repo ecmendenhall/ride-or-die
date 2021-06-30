@@ -3,6 +3,7 @@ import { User } from "./entity/User";
 
 interface UserParams {
   address: string;
+  stravaId?: number;
 }
 
 const create = async (params : UserParams) => {

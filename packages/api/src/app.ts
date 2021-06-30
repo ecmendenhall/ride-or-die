@@ -3,6 +3,7 @@ import express from "express";
 
 import config from "../config";
 import strava from "./strava";
+import users from "./users";
 
 const app = express();
 
@@ -16,6 +17,10 @@ app.get("/link-strava/complete", async (req, res) => {
   } else {
     let code = req.query.code as string;
     let responseData = await strava.getToken(code);
+    await users.create({
+      address: '0x1',
+      stravaId: responseData.athlete.id
+    });
     res.status(200).send(responseData.athlete);
   }
 });

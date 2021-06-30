@@ -1,9 +1,13 @@
 import request, { Response } from "supertest";
 import app from "./app";
 import strava from "./strava";
+import users from "./users";
 
 jest.mock('./strava');
 const mockStrava = strava as jest.Mocked<typeof strava>;
+
+jest.mock('./users');
+const mockUsers = users as jest.Mocked<typeof users>;
 
 describe("API", () => {
   describe("/authenticate", () => {
@@ -57,6 +61,11 @@ describe("API", () => {
         mockStrava.getToken.mockResolvedValue({
           athlete: {id: 5}
         });
+        mockUsers.create.mockResolvedValue({
+          id: 1,
+          address: '0x1',
+          stravaId: 5
+        });
       });
 
       describe("success", () => {
@@ -67,11 +76,21 @@ describe("API", () => {
           expect(response.statusCode).toBe(200);
         });
 
-        it("creates a User with associated Strava ID and token", async () => {
+        it("returns athlete data", async () => {
           let response = await request(app)
             .get("/link-strava/complete")
             .query({ code: "abc123", scope: "read,activity:read" });
           expect(response.body).toEqual({id: 5});
+        });
+
+        it("creates a User with associated Strava ID and token", async () => {
+          let response = await request(app)
+            .get("/link-strava/complete")
+            .query({ code: "abc123", scope: "read,activity:read" });
+          expect(mockUsers.create).toHaveBeenCalledWith({
+            address: "0x1",
+            stravaId: 5
+          });
         });
       });
 

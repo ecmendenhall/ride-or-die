@@ -1,19 +1,18 @@
 import users from './users';
-import db from './database';
+import testHelpers from '../lib/test-helpers';
 
 describe("users module", () => {
 
   beforeAll(async () => {
-    await db.connection.create();
+    await testHelpers.db.setUp();
   });
 
   afterAll(async () => {
-    await db.testHelpers.clear();
-    await db.connection.close();
+    await testHelpers.db.tearDown();
   });
 
   afterEach(async () => {
-    await db.testHelpers.clear();
+    await testHelpers.db.clear();
   });
 
   describe("create", () => {
@@ -25,5 +24,11 @@ describe("users module", () => {
       expect(user?.address).toBe("0x01");
     });
 
+    it("enforces unique address", async () => {
+      await users.create({address: "0x01"});
+      await expect(users.create({address: "0x01"})).rejects.toThrow('duplicate key value violates unique constraint');
+    });
+
   });
+
 });

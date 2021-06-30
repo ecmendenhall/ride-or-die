@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, Index } from "typeorm";
 
 @Entity()
 export class User {
@@ -6,5 +6,9 @@ export class User {
   id!: number;
 
   @Column()
-  address!: string;
+  @Index({ unique: true })
+  address?: string;
+
+  @Column({ unique: true, nullable: true})
+  stravaId?: number;
 }
