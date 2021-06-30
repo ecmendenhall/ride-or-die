@@ -1,8 +1,8 @@
 import request, { Response } from "supertest";
 import app from "./app";
-import strava from "./src/strava";
+import strava from "./strava";
 
-jest.mock('./src/strava');
+jest.mock('./strava');
 const mockStrava = strava as jest.Mocked<typeof strava>;
 
 describe("API", () => {

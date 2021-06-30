@@ -1,10 +1,12 @@
 {
+  "name": "default",
   "type": "postgres",
   "host": "localhost",
   "port": 5432,
   "database": "ride-or-die",
   "synchronize": true,
   "logging": false,
+  "dropSchema": true,
   "entities": ["src/entity/**/*.ts"],
   "migrations": ["src/migration/**/*.ts"],
   "subscribers": ["src/subscriber/**/*.ts"],

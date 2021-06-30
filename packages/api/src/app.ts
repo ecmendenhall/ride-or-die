@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import express from "express";
 
-import config from "./config";
-import strava from "./src/strava";
+import config from "../config";
+import strava from "./strava";
 
 const app = express();
 
