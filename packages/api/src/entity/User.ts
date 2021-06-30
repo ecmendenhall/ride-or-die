@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  OneToOne,
+  JoinColumn,
+} from "typeorm";
+import { Token } from "./Token";
 
 @Entity()
 export class User {
@@ -11,4 +19,8 @@ export class User {
 
   @Column({ unique: true, nullable: true })
   stravaId?: number;
+
+  @OneToOne(() => Token, (token) => token.user)
+  @JoinColumn()
+  token?: Token;
 }
