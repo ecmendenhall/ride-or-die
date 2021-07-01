@@ -19,7 +19,7 @@ describe("Strava", () => {
       expect(redirectUri.pathname).toBe("/oauth/authorize");
       expect(redirectUri.searchParams.get("client_id")).toBe("4567");
       expect(redirectUri.searchParams.get("redirect_uri")).toBe(
-        "http://localhost:3000/authenticate/complete"
+        "http://localhost:3000/link-strava/complete"
       );
       expect(redirectUri.searchParams.get("response_type")).toBe("code");
       expect(redirectUri.searchParams.get("scope")).toBe("read,activity:read");

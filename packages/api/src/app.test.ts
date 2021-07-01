@@ -48,6 +48,16 @@ describe("API", () => {
           expect(response.statusCode).toBe(200);
         });
 
+        it("returns token on valid signature", async () => {
+          mockAuth.verifySignature.mockResolvedValue(true);
+          mockAuth.generateJWT.mockReturnValue("def456");
+          let response = await request(app)
+            .post("/login/sign")
+            .send({ address: "0x1", signature: "abc123" })
+            .set("Content-Type", "application/json");
+          expect(response.body).toStrictEqual({ token: "def456" });
+        });
+
         it("returns 401 on invalid signature", async () => {
           mockAuth.verifySignature.mockResolvedValue(false);
           let response = await request(app)

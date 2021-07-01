@@ -14,7 +14,7 @@ const authURL = () => {
   url.searchParams.append("client_id", config.STRAVA_CLIENT_ID);
   url.searchParams.append(
     "redirect_uri",
-    "http://localhost:3000/authenticate/complete"
+    "http://localhost:3000/link-strava/complete"
   );
   url.searchParams.append("response_type", "code");
   url.searchParams.append("scope", "read,activity:read");

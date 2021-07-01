@@ -85,4 +85,15 @@ describe("auth module", () => {
       expect(verified).toBe(false);
     });
   });
+
+  describe("generateJWT", () => {
+    it("generates a JWT for a given address", () => {
+      let signer = ethers.Wallet.fromMnemonic(
+        "radar blur cabbage chef fix engine embark joy scheme fiction master release"
+      );
+      let token = auth.generateJWT(signer.address);
+      let decoded = auth.verifyJWT(token);
+      expect(decoded.address).toBe(signer.address);
+    });
+  });
 });
