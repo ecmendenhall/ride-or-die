@@ -22,7 +22,6 @@ describe("API", () => {
         user.session = {
           id: 1,
           nonce: "abc123",
-          expires: 1625092608,
           user: user,
         };
         mockAuth.logIn.mockResolvedValue(user);

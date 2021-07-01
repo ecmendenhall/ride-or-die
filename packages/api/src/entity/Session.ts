@@ -11,7 +11,4 @@ export class Session {
 
   @Column()
   nonce!: string;
-
-  @Column()
-  expires!: number;
 }

@@ -11,17 +11,6 @@ export interface JWTPayload {
   iap: number;
 }
 
-const ONE_DAY = 86400;
-const SESSION_DURATION = 7;
-
-const currentTimestamp = () => {
-  return Math.floor(Date.now() / 1000);
-};
-
-const generateExpiration = () => {
-  return currentTimestamp() + SESSION_DURATION * ONE_DAY;
-};
-
 const generateNonce = () => {
   return crypto.randomBytes(16).toString("hex");
 };
@@ -35,7 +24,6 @@ const logIn = async (address: string) => {
   }
   user = await sessions.create({
     user: user,
-    expires: generateExpiration(),
     nonce: generateNonce(),
   });
   return user;
@@ -60,7 +48,6 @@ const verifyJWT = (token: string) => {
 };
 
 export default {
-  currentTimestamp: currentTimestamp,
   generateNonce: generateNonce,
   verifySignature: verifySignature,
   generateJWT: generateJWT,

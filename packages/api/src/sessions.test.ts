@@ -20,11 +20,9 @@ describe("tokens module", () => {
       let user = await users.create({ address: "0x01" });
       await sessions.create({
         user: user,
-        expires: 1568775134,
         nonce: "abc123",
       });
       let session = await sessions.findByUser(user.id);
-      expect(session?.expires).toBe(1568775134);
       expect(session?.nonce).toBe("abc123");
     });
   });

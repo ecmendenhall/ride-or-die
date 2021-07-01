@@ -4,7 +4,6 @@ import { User } from "./entity/User";
 
 interface SessionParams {
   user: User;
-  expires: number;
   nonce: string;
 }
 
