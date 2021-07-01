@@ -119,6 +119,9 @@ describe("API", () => {
     describe("/complete", () => {
       beforeEach(() => {
         mockStrava.getToken.mockResolvedValue({
+          expires_at: 1625129490,
+          access_token: "abc123",
+          refresh_token: "def456",
           athlete: { id: 5 },
         });
         mockUsers.create.mockResolvedValue({

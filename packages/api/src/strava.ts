@@ -6,6 +6,9 @@ interface Athlete {
 }
 
 interface StravaAuthResponse {
+  expires_at: number;
+  access_token: string;
+  refresh_token: string;
   athlete: Athlete;
 }
 

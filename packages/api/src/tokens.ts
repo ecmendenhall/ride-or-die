@@ -1,27 +1,29 @@
 import { getRepository } from "typeorm";
 import { Token } from "./entity/Token";
 import { User } from "./entity/User";
+import users from "./users";
 
 interface TokenParams {
-  user: User;
   expires: number;
   accessToken: string;
   refreshToken: string;
   scopes: string;
 }
 
-const create = async (params: TokenParams) => {
-  let { user, ...tokenParams } = params;
+const create = async (userAddress : string, params: TokenParams) => {
   let tokenRepository = getRepository(Token);
-  let token = tokenRepository.create(tokenParams);
+  let token = tokenRepository.create(params);
   await tokenRepository.save(token);
-  user.token = token;
-  return getRepository(User).save(user);
+  let user = await users.find(userAddress);
+  if (user) {
+    user.token = token;
+    return getRepository(User).save(user);
+  }
 };
 
-const findByUser = async (userId: number) => {
+const findByUser = async (address: string) => {
   let user = await getRepository(User).findOne(
-    { id: userId },
+    { address: address },
     { relations: ["token"] }
   );
   return user?.token;

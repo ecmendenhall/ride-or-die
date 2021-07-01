@@ -16,7 +16,7 @@ export class User {
 
   @Column()
   @Index({ unique: true })
-  address?: string;
+  address!: string;
 
   @Column({ unique: true, nullable: true })
   stravaId?: number;

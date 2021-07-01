@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import config from "../config";
 import strava from "./strava";
 import users from "./users";
+import tokens from "./tokens";
 import auth, { JWTPayload } from "./auth";
 
 const app = express();
@@ -50,6 +51,13 @@ app.get("/link-strava/complete", jwtAuth, async (req, res) => {
     await users.update(user.address, {
       address: user.address,
       stravaId: responseData.athlete.id,
+    });
+    console.log(responseData);
+    await tokens.create(user.address, {
+      expires: responseData.expires_at,
+      accessToken: responseData.access_token,
+      refreshToken: responseData.refresh_token,
+      scopes: 'read,activity:read'
     });
     res.status(200).send(responseData.athlete);
   }

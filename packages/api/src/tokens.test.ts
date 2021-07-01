@@ -18,14 +18,13 @@ describe("tokens module", () => {
   describe("create", () => {
     it("creates a token associated with a user", async () => {
       let user = await users.create({ address: "0x01" });
-      await tokens.create({
-        user: user,
+      await tokens.create(user.address, {
         expires: 1568775134,
         accessToken: "abc123",
         refreshToken: "def456",
         scopes: "read,activity:read",
       });
-      let token = await tokens.findByUser(user.id);
+      let token = await tokens.findByUser(user.address);
       expect(token?.expires).toBe(1568775134);
       expect(token?.accessToken).toBe("abc123");
       expect(token?.refreshToken).toBe("def456");
