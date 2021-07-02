@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import express from "express";
-import jwt from "express-jwt";
 import cookieParser from "cookie-parser";
 
 import config from "../config";
@@ -13,12 +12,6 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 app.use(cookieParser());
-
-const jwtAuth = jwt({
-  secret: config.SECRET_KEY,
-  algorithms: ["HS256"],
-  getToken: (req) => req.cookies.token,
-});
 
 app.post("/login", async (req, res) => {
   let user = await auth.logIn(req.body.address);
@@ -37,11 +30,11 @@ app.post("/login/sign", async (req, res) => {
   }
 });
 
-app.get("/link-strava", jwtAuth, (req, res) => {
+app.get("/link-strava", auth.requireLogin, (req, res) => {
   res.redirect(302, strava.authURL());
 });
 
-app.get("/link-strava/complete", jwtAuth, async (req, res) => {
+app.get("/link-strava/complete", auth.requireLogin, async (req, res) => {
   if (req.query.error) {
     res.status(403).send("Forbidden");
   } else {
@@ -52,14 +45,13 @@ app.get("/link-strava/complete", jwtAuth, async (req, res) => {
       address: user.address,
       stravaId: responseData.athlete.id,
     });
-    console.log(responseData);
     await tokens.create(user.address, {
       expires: responseData.expires_at,
       accessToken: responseData.access_token,
       refreshToken: responseData.refresh_token,
       scopes: 'read,activity:read'
     });
-    res.status(200).send(responseData.athlete);
+    res.status(200).send({ address: user.address, profile: responseData.athlete });
   }
 });
 

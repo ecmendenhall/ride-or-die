@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import expressJwt from "express-jwt";
 import crypto from "crypto";
 import { ethers } from "ethers";
 import users from "./users";
@@ -10,6 +11,12 @@ export interface JWTPayload {
   exp: number;
   iap: number;
 }
+
+const requireLogin = expressJwt({
+  secret: config.SECRET_KEY,
+  algorithms: ["HS256"],
+  getToken: (req) => req.cookies.token,
+});
 
 const generateNonce = () => {
   return crypto.randomBytes(16).toString("hex");
@@ -53,4 +60,5 @@ export default {
   generateJWT: generateJWT,
   verifyJWT: verifyJWT,
   logIn: logIn,
+  requireLogin: requireLogin
 };

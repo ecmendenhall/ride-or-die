@@ -3,6 +3,7 @@ import app from "./app";
 import strava from "./strava";
 import users from "./users";
 import auth from "./auth";
+import tokens from "./tokens";
 import { User } from "./entity/User";
 
 jest.mock("./strava");
@@ -13,6 +14,9 @@ const mockUsers = users as jest.Mocked<typeof users>;
 
 jest.mock("./auth");
 const mockAuth = auth as jest.Mocked<typeof auth>;
+
+jest.mock("./tokens");
+const mockTokens = tokens as jest.Mocked<typeof tokens>;
 
 describe("API", () => {
   describe("/login", () => {
@@ -70,6 +74,13 @@ describe("API", () => {
   });
 
   describe("/link-strava", () => {
+    beforeEach(async () => {
+      mockAuth.requireLogin.mockImplementation((req, res, next) => {
+        req.user = {id: 1, address: "0x1"};
+        next()
+      });
+    });
+
     describe("GET", () => {
       let response: Response;
       let redirectUri: URL;
@@ -143,16 +154,22 @@ describe("API", () => {
           let response = await request(app)
             .get("/link-strava/complete")
             .query({ code: "abc123", scope: "read,activity:read" });
-          expect(response.body).toEqual({ id: 5 });
+          expect(response.body).toEqual({ address: "0x1", profile: { id: 5 }});
         });
 
-        it("creates a User with associated Strava ID and token", async () => {
+        it("updates User with associated Strava ID and token", async () => {
           let response = await request(app)
             .get("/link-strava/complete")
             .query({ code: "abc123", scope: "read,activity:read" });
-          expect(mockUsers.create).toHaveBeenCalledWith({
+          expect(mockUsers.update).toHaveBeenCalledWith("0x1", {
             address: "0x1",
             stravaId: 5,
+          });
+          expect(mockTokens.create).toHaveBeenCalledWith("0x1", {
+            expires: 1625129490,
+            accessToken: "abc123",
+            refreshToken: "def456",
+            scopes: 'read,activity:read'
           });
         });
       });
