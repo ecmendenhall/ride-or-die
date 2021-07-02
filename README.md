@@ -3,7 +3,16 @@
 ## Setup
 
 `$ npm install`
+`$ npx lerna bootstrap`
+`$ npx learna run test` (run twice for whatever reason)
 
 ## Run tests
 
-`$ npx hardhat test`
+### Run individual project tests
+``shell
+$ cd packages/<project>
+$ npm run test
+``
+
+### Run all tests from root
+`$ npx learna run test`
