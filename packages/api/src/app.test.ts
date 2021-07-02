@@ -76,8 +76,8 @@ describe("API", () => {
   describe("/link-strava", () => {
     beforeEach(async () => {
       mockAuth.requireLogin.mockImplementation((req, res, next) => {
-        req.user = {id: 1, address: "0x1"};
-        next()
+        req.user = { id: 1, address: "0x1" };
+        next();
       });
     });
 
@@ -143,18 +143,12 @@ describe("API", () => {
       });
 
       describe("success", () => {
-        it("returns a 200 OK", async () => {
+        it("returns a 302 to the profile route", async () => {
           let response = await request(app)
             .get("/link-strava/complete")
             .query({ code: "abc123", scope: "read,activity:read" });
-          expect(response.statusCode).toBe(200);
-        });
-
-        it("returns athlete data", async () => {
-          let response = await request(app)
-            .get("/link-strava/complete")
-            .query({ code: "abc123", scope: "read,activity:read" });
-          expect(response.body).toEqual({ address: "0x1", profile: { id: 5 }});
+          expect(response.statusCode).toBe(302);
+          expect(response.headers.location).toBe("/profile");
         });
 
         it("updates User with associated Strava ID and token", async () => {
@@ -169,7 +163,7 @@ describe("API", () => {
             expires: 1625129490,
             accessToken: "abc123",
             refreshToken: "def456",
-            scopes: 'read,activity:read'
+            scopes: "read,activity:read",
           });
         });
       });
@@ -185,9 +179,35 @@ describe("API", () => {
     });
   });
 
-  describe("/goals", () => {
+  describe("/profile", () => {
+    beforeEach(async () => {
+      mockAuth.requireLogin.mockImplementation((req, res, next) => {
+        req.user = { id: 1, address: "0x1" };
+        next();
+      });
+      mockUsers.find.mockResolvedValue({ id: 1, address: "0x1" });
+      mockStrava.getProfile.mockResolvedValue({
+        id: 5,
+      });
+    });
+
     it("returns a 200 OK", async () => {
-      let response = await request(app).get("/goals");
+      let response = await request(app).get("/profile");
+      expect(response.statusCode).toBe(200);
+    });
+
+    it("returns profile data", async () => {
+      let response = await request(app).get("/profile");
+      expect(response.body).toStrictEqual({
+        address: "0x1",
+        profile: { id: 5 },
+      });
+    });
+  });
+
+  describe("/progress", () => {
+    it("returns a 200 OK", async () => {
+      let response = await request(app).get("/progress/0x1");
       expect(response.statusCode).toBe(200);
     });
   });

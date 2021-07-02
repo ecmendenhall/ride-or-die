@@ -39,7 +39,7 @@ describe("auth module", () => {
     it("creates a user if one does not exist", async () => {
       let created = await auth.logIn("0x1");
       let user = await users.find("0x1");
-      expect(created).toStrictEqual(user);
+      expect(created.address).toStrictEqual(user?.address);
     });
 
     it("creates a session associated with the user", async () => {

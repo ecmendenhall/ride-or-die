@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import config from "../config";
+import { User } from "./entity/User";
 
 interface Athlete {
   id: number;
@@ -10,6 +11,11 @@ interface StravaAuthResponse {
   access_token: string;
   refresh_token: string;
   athlete: Athlete;
+}
+
+interface StravaActivity {
+  distance: number;
+  manual: boolean;
 }
 
 const authURL = () => {
@@ -40,7 +46,48 @@ const getToken = async (code: string) => {
   return responseData;
 };
 
+const getProfile = async (user: User) => {
+  let response = await fetch("https://www.strava.com/api/v3/athlete", {
+    headers: {
+      Authorization: `Bearer ${user?.token?.accessToken}`,
+    },
+  });
+  let responseData = await response.json();
+  return responseData;
+};
+
+const getProgress = async (user: User, after: number, before: number) => {
+  let allActivities: StravaActivity[] = [];
+  let page = 1;
+  while (true) {
+    let response = await fetch(
+      `https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=200&after=${after}&before=${before}`,
+      {
+        headers: {
+          Authorization: `Bearer ${user?.token?.accessToken}`,
+        },
+      }
+    );
+    let responseData: StravaActivity[] = await response.json();
+    if (responseData.length === 0) {
+      break;
+    }
+    allActivities = allActivities.concat(responseData);
+    page++;
+  }
+  let activities = allActivities.filter(
+    (activity: StravaActivity) => activity.manual === false
+  );
+  let total = activities.reduce(
+    (acc: number, activity: StravaActivity) => acc + activity.distance,
+    0
+  );
+  return { totalDistance: total };
+};
+
 export default {
   authURL: authURL,
   getToken: getToken,
+  getProfile: getProfile,
+  getProgress: getProgress,
 };

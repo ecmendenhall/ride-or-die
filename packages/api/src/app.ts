@@ -49,14 +49,33 @@ app.get("/link-strava/complete", auth.requireLogin, async (req, res) => {
       expires: responseData.expires_at,
       accessToken: responseData.access_token,
       refreshToken: responseData.refresh_token,
-      scopes: 'read,activity:read'
+      scopes: "read,activity:read",
     });
-    res.status(200).send({ address: user.address, profile: responseData.athlete });
+    res.redirect(302, "/profile");
   }
 });
 
-app.get("/goals", (req, res) => {
-  res.status(200).send("OK");
+app.get("/profile", auth.requireLogin, async (req, res) => {
+  let { address } = req.user as JWTPayload;
+  let user = await users.find(address);
+  if (user) {
+    let profile = await strava.getProfile(user);
+    res.status(200).send({ address: user.address, profile: profile });
+  } else {
+    res.status(404);
+  }
+});
+
+app.get("/progress/:address/", async (req, res) => {
+  let user = await users.find(req.params.address);
+  if (user) {
+    let now = Math.floor(Date.now() / 1000);
+    let oneMonth = 2592000;
+    let progressData = await strava.getProgress(user, now - 3 * oneMonth, now);
+    res.status(200).send(progressData);
+  } else {
+    res.status(404);
+  }
 });
 
 export default app;

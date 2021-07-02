@@ -60,5 +60,5 @@ export default {
   generateJWT: generateJWT,
   verifyJWT: verifyJWT,
   logIn: logIn,
-  requireLogin: requireLogin
+  requireLogin: requireLogin,
 };

@@ -19,7 +19,7 @@ const create = async (params: SessionParams) => {
 const findByUser = async (userId: number) => {
   let user = await getRepository(User).findOne(
     { id: userId },
-    { relations: ["session"] }
+    { relations: ["session", "token"] }
   );
   return user?.session;
 };

@@ -6,7 +6,6 @@
   "database": "ride_or_die",
   "synchronize": true,
   "logging": false,
-  "dropSchema": true,
   "entities": ["src/entity/**/*.ts"],
   "migrations": ["src/migration/**/*.ts"],
   "subscribers": ["src/subscriber/**/*.ts"],
