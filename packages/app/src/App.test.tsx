@@ -2,8 +2,11 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+beforeEach(() => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+})
+
+test('renders the home page', () => {
+  const titleElement = screen.getByText(/ride or die/i);
+  expect(titleElement).toBeInTheDocument();
 });

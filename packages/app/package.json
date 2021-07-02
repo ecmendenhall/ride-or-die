@@ -29,6 +29,7 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
+    "ci": "craco test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -48,5 +49,14 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "homepage": "https://github.com/ecmendenhall/ride-or-die#readme",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ecmendenhall/ride-or-die.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ecmendenhall/ride-or-die/issues"
   }
 }
