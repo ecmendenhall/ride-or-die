@@ -9,4 +9,10 @@ beforeEach(() => {
 test('renders the home page', () => {
   const titleElement = screen.getByText(/ride or die/i);
   expect(titleElement).toBeInTheDocument();
+
+  const connectWalletButton = screen.getByText(/connect wallet/i);
+  expect(connectWalletButton).toBeInTheDocument();
+
+  const linkStravaButton = screen.getByText(/link strava/i);
+  expect(linkStravaButton).toBeInTheDocument();
 });
