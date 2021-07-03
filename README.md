@@ -59,12 +59,12 @@ source .env
 Run a local hardhat network node:
 
 ```shell
-$ npx hardhat node --network hardhat
+$ npx hardhat node --network fork
 ```
 
 Deploy the contracts:
 ```shell
-$ npx hardhat run --network localhost scripts/deploy.ts
+$ npx hardhat run --network fork scripts/deploy.ts
 ```
 
 The deployment script will print addresses for each deployed contract.
