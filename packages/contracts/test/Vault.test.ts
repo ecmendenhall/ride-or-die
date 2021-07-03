@@ -67,8 +67,9 @@ describe("Vault", function () {
     });
 
     it("Accepts DAI deposits, returns vault shares", async function () {
+      let expectedBalance = await mockCurve3Pool.lpTokenAmount(parseEther("2500"));
       expect(await vault.balanceOf(staker.address)).to.equal(
-        parseEther("2469.135802469135802469")
+        expectedBalance
       );
     });
 
@@ -109,20 +110,19 @@ describe("Vault", function () {
 
     it("Only owner can withdraw", async function () {
       expect(
-        vault.connect(staker).withdraw(staker.address, parseEther("1000"))
+        vault.connect(staker).withdraw(staker.address)
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
 
     it("Withdrawal burns vault shares", async function () {
-      await vault.connect(owner).withdraw(staker.address, parseEther("1000"));
+      await vault.connect(owner).withdraw(staker.address);
       expect(await vault.balanceOf(staker.address)).to.equal(
-        parseEther("1469.135802469135802469")
+        parseEther("0")
       );
     });
 
     it("Withdrawal returns Dai value of vault shares, minus Curve withdrawal slippage", async function () {
-      let fullBalance = await vault.balanceOf(staker.address);
-      await vault.connect(owner).withdraw(staker.address, fullBalance);
+      await vault.connect(owner).withdraw(staker.address);
       expect(await vault.balanceOf(staker.address)).to.equal(0);
       expect(await mockDai.balanceOf(staker.address)).to.equal(
         parseEther("2497.50")

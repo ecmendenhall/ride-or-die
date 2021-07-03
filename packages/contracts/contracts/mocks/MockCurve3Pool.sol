@@ -26,7 +26,7 @@ contract MockCurve3Pool {
         external
     {
         dai.safeTransferFrom(msg.sender, address(this), amounts[0]);
-        uint256 lpTokens = amounts[0].mul(1e18).div(virtualPrice);
+        uint256 lpTokens = lpTokenAmount(amounts[0]);
         threeCrv.mint(msg.sender, lpTokens);
     }
 
@@ -36,9 +36,21 @@ contract MockCurve3Pool {
         uint256 min_amount
     ) external {
         threeCrv.safeTransferFrom(msg.sender, address(this), _token_amount);
-        uint256 daiAmount = virtualPrice.mul(_token_amount).div(1e18);
-        uint256 slippage = daiAmount.mul(slippageBps).div(BPS_DENOMINATOR);
-        uint256 transferOut = daiAmount.sub(slippage);
+        uint256 transferOut = daiWithdrawalAmount(_token_amount);
         dai.mint(msg.sender, transferOut);
     }
+
+    // test helpers
+
+    function lpTokenAmount(uint256 amount) public view returns (uint256) {
+        return amount.mul(1e18).div(virtualPrice);
+    }
+
+    function daiWithdrawalAmount(uint256 amount) public view returns (uint256) {
+        uint256 daiAmount = virtualPrice.mul(amount).div(1e18);
+        uint256 slippage = daiAmount.mul(slippageBps).div(BPS_DENOMINATOR);
+        uint256 transferOut = daiAmount.sub(slippage);
+        return transferOut;
+    }
+
 }
