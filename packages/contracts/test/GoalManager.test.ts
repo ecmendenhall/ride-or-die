@@ -3,21 +3,27 @@ import { waffle, ethers } from "hardhat";
 import { parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { MockERC20, GoalManager, MockCurve3Pool, MockStakeDAOVault, Vault } from '../typechain';
+import {
+  MockERC20,
+  GoalManager,
+  MockCurve3Pool,
+  MockStakeDAOVault,
+  Vault,
+} from "../typechain";
 
 describe("GoalManager", function () {
   const STAKE_AMOUNT = parseEther("2500");
   const IPFS_CID =
     "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi";
 
-  let owner : SignerWithAddress;
-  let goalSetter : SignerWithAddress;
-  let mockCurve3Pool : MockCurve3Pool;
-  let mockStakeDAOvault : MockStakeDAOVault;
-  let vault : Vault;
-  let mockDai : MockERC20;
-  let mock3crv : MockERC20;
-  let goalManager : GoalManager;
+  let owner: SignerWithAddress;
+  let goalSetter: SignerWithAddress;
+  let mockCurve3Pool: MockCurve3Pool;
+  let mockStakeDAOvault: MockStakeDAOVault;
+  let vault: Vault;
+  let mockDai: MockERC20;
+  let mock3crv: MockERC20;
+  let goalManager: GoalManager;
 
   beforeEach(async function () {
     [owner, goalSetter] = await ethers.getSigners();
@@ -47,12 +53,8 @@ describe("GoalManager", function () {
       mockCurve3Pool.address
     );
 
-
     const GoalManager = await ethers.getContractFactory("GoalManager");
-    goalManager = await GoalManager.deploy(
-      mockDai.address,
-      vault.address
-    );
+    goalManager = await GoalManager.deploy(mockDai.address, vault.address);
 
     await vault.connect(owner).transferOwnership(goalManager.address);
 
@@ -81,7 +83,9 @@ describe("GoalManager", function () {
       await goalManager
         .connect(goalSetter)
         .createGoal(100, STAKE_AMOUNT, IPFS_CID);
-      let [staker, target, stake, created, expires] = await goalManager.goals(1);
+      let [staker, target, stake, created, expires] = await goalManager.goals(
+        1
+      );
 
       expect(staker).to.equal(goalSetter.address);
       expect(target).to.equal(100);
@@ -110,9 +114,7 @@ describe("GoalManager", function () {
         let newBalance = await vault.balanceOf(goalSetter.address);
         let expectedBalance = await mockCurve3Pool.lpTokenAmount(STAKE_AMOUNT);
 
-        expect(newBalance).to.equal(
-          expectedBalance
-        );
+        expect(newBalance).to.equal(expectedBalance);
       });
 
       it("Reverts if user balance is less than stake amount", async function () {
@@ -153,8 +155,7 @@ describe("GoalManager", function () {
   });
 
   describe("Redeeming completed goals", async function () {
-
-    let vaultBalanceBeforeWithdrawal : BigNumber;
+    let vaultBalanceBeforeWithdrawal: BigNumber;
 
     beforeEach(async () => {
       await goalManager
@@ -169,8 +170,10 @@ describe("GoalManager", function () {
     });
 
     it("Deletes the goal data", async function () {
-      let [staker, target, stake, created, expires] = await goalManager.goals(1);
-      expect(staker).to.equal('0x0000000000000000000000000000000000000000');
+      let [staker, target, stake, created, expires] = await goalManager.goals(
+        1
+      );
+      expect(staker).to.equal("0x0000000000000000000000000000000000000000");
       expect(target).to.equal(0);
       expect(stake).to.equal(0);
       expect(created).to.equal(0);
@@ -184,8 +187,12 @@ describe("GoalManager", function () {
 
     it("Withdraws vault balance to msg.sender", async function () {
       let goalId = await goalManager.goalsByStaker(goalSetter.address);
-      let daiWithdrawalAmount = await mockCurve3Pool.daiWithdrawalAmount(vaultBalanceBeforeWithdrawal);
-      expect(await mockDai.balanceOf(goalSetter.address)).to.equal(daiWithdrawalAmount);
+      let daiWithdrawalAmount = await mockCurve3Pool.daiWithdrawalAmount(
+        vaultBalanceBeforeWithdrawal
+      );
+      expect(await mockDai.balanceOf(goalSetter.address)).to.equal(
+        daiWithdrawalAmount
+      );
     });
   });
 
@@ -203,8 +210,10 @@ describe("GoalManager", function () {
         .connect(goalSetter)
         .createGoal(100, STAKE_AMOUNT, IPFS_CID);
       await goalManager.connect(goalSetter).liquidateGoal(1);
-      let [staker, target, stake, created, expires] = await goalManager.goals(1);
-      expect(staker).to.equal('0x0000000000000000000000000000000000000000');
+      let [staker, target, stake, created, expires] = await goalManager.goals(
+        1
+      );
+      expect(staker).to.equal("0x0000000000000000000000000000000000000000");
       expect(target).to.equal(0);
       expect(stake).to.equal(0);
       expect(created).to.equal(0);
