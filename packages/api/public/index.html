@@ -10,55 +10,10 @@
     <button id="login" type="button">Log In</button>
     <button id="link-strava" type="button">Link Strava</button>
     <script>
-      let provider;
-      let signer;
-
-      function connectMetaMask() {
-        window.ethereum.enable().then(() => {
-          provider = new ethers.providers.Web3Provider(window.ethereum);
-          signer = provider.getSigner();
-        });
-      }
-
-      async function login() {
-        let address = await signer.getAddress();
-        let response = await fetch("/login", {
-          method: "POST",
-          body: JSON.stringify({
-            address: address,
-          }),
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        });
-        let { nonce } = await response.json();
-        console.log(nonce);
-        let signature = await signer.signMessage(nonce);
-        response = await fetch("/login/sign", {
-          method: "POST",
-          body: JSON.stringify({
-            address: address,
-            signature: signature,
-          }),
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        });
-
-        let { token } = await response.json();
-        console.log(token);
-      }
-
       function linkStrava() {
         window.location = "/link-strava";
       }
 
-      document
-        .getElementById("connect")
-        .addEventListener("click", connectMetaMask);
-      document.getElementById("login").addEventListener("click", login);
       document
         .getElementById("link-strava")
         .addEventListener("click", linkStrava);

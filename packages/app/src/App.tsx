@@ -1,10 +1,10 @@
 import React from 'react';
-import {ConnectWallet} from "./components/wallet";
 import {LinkStrava} from "./components/strava";
 import {Container} from "./components/container";
 import {Panel} from "./components/panel";
 import {Title} from "./components/title";
 import {Goal} from "./components/goal";
+import {EthAuthentication} from "./components/ethAuthentication";
 
 function Welcome() {
     return (
@@ -21,7 +21,7 @@ function Welcome() {
 function App() {
     return (
         <Container>
-            <ConnectWallet/>
+            <EthAuthentication/>
             <Title/>
             <Panel>
                 <Welcome/>
