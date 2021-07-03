@@ -75,11 +75,12 @@ contract Vault is Ownable, ERC20 {
         return shares;
     }
 
-    function withdraw(address shareholder, uint256 shares)
+    function withdraw(address shareholder)
         public
         onlyOwner
         returns (uint256)
     {
+        uint256 shares = balanceOf(shareholder);
         _burn(shareholder, shares);
 
         uint256 threeCrvBalanceBefore = threeCrv.balanceOf(address(this));
