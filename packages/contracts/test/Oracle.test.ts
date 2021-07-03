@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { waffle, ethers } from "hardhat";
-import { parseEther, formatBytes32String, toUtf8Bytes } from "ethers/lib/utils";
+import { parseEther, formatBytes32String, toUtf8Bytes, getAddress } from "ethers/lib/utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { MockGoalManager, MockChainlinkOracle, Oracle } from "../typechain";
 
@@ -46,5 +46,27 @@ describe("Vault", function () {
         "0x3239666139616131336266313436383738386237636334613530306134356238"
       );
     });
+
+    it("Has an API baseURL", async function () {
+      expect(await oracle.apiBaseUrl()).to.equal("https://api.rideordie.bike/progress/");
+    });
+  });
+
+  describe("Contract setup", async function () {
+    it("Constructs a verification URL", async function () {
+      let [staker, target, stake, created, expires] = await mockGoalManager.goals(1);
+      expect(await oracle.verificationURL(1)).to.equal(
+        `https://api.rideordie.bike/progress/${staker.toLowerCase()}/?after=${created}&before=${expires}`
+      );
+    });
+
+    it("Constructs a Chainlink request", async function () {
+      let [ id, callbackAddress, callbackFunctionId, nonce, buffer ] = await oracle.newChainlinkRequest(1);
+      expect(id).to.equal("0x3239666139616131336266313436383738386237636334613530306134356238");
+      expect(callbackAddress).to.equal(oracle.address);
+      expect(callbackFunctionId).to.equal('0x4357855e');
+      expect(nonce).to.equal(0);
+    });
+
   });
 });
