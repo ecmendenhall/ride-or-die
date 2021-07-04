@@ -225,4 +225,25 @@ describe("API", () => {
       });
     });
   });
+
+  describe("/oracle", () => {
+    beforeEach(async () => {
+      mockUsers.find.mockResolvedValue({ id: 1, address: "0x1" });
+      mockStrava.getProgress.mockResolvedValue({
+        totalDistance: 500,
+      });
+    });
+
+    it("returns a 200 OK", async () => {
+      let response = await request(app).get("/oracle/0x1");
+      expect(response.statusCode).toBe(200);
+    });
+
+    it("returns progress data", async () => {
+      let response = await request(app).get("/oracle/0x1");
+      expect(response.body).toStrictEqual({
+        totalDistance: 500
+      });
+    });
+  });
 });

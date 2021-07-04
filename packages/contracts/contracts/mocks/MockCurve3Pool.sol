@@ -52,5 +52,4 @@ contract MockCurve3Pool {
         uint256 transferOut = daiAmount.sub(slippage);
         return transferOut;
     }
-
 }

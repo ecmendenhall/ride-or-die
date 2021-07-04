@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.7.0;
+pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 interface IVault {
-    function deposit(address depositor, uint256 amount) external returns(uint256);
-    function withdraw(address depositor) external returns(uint256);
+    function deposit(address depositor, uint256 amount)
+        external
+        returns (uint256);
+
+    function withdraw(address depositor) external returns (uint256);
 }
 
 contract GoalManager is ERC721 {

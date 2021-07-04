@@ -78,4 +78,16 @@ app.get("/progress/:address/", async (req, res) => {
   }
 });
 
+app.get("/oracle/:address/", async (req, res) => {
+  let user = await users.find(req.params.address);
+  if (user) {
+    let now = Math.floor(Date.now() / 1000);
+    let oneMonth = 2592000;
+    let progressData = await strava.getProgress(user, now - oneMonth, now);
+    res.status(200).send(progressData);
+  } else {
+    res.status(404);
+  }
+});
+
 export default app;

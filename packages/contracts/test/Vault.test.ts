@@ -3,17 +3,22 @@ import { waffle, ethers } from "hardhat";
 import { parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { MockERC20, MockCurve3Pool, MockStakeDAOVault, Vault } from "../typechain";
+import {
+  MockERC20,
+  MockCurve3Pool,
+  MockStakeDAOVault,
+  Vault,
+} from "../typechain";
 
 describe("Vault", function () {
-  let owner : SignerWithAddress,
-    staker : SignerWithAddress,
-    thirdParty : SignerWithAddress,
-    mockDai : MockERC20,
-    mock3crv : MockERC20,
-    mockCurve3Pool : MockCurve3Pool,
-    mockStakeDAOvault : MockStakeDAOVault,
-    vault : Vault;
+  let owner: SignerWithAddress,
+    staker: SignerWithAddress,
+    thirdParty: SignerWithAddress,
+    mockDai: MockERC20,
+    mock3crv: MockERC20,
+    mockCurve3Pool: MockCurve3Pool,
+    mockStakeDAOvault: MockStakeDAOVault,
+    vault: Vault;
 
   beforeEach(async function () {
     [owner, staker, thirdParty] = await ethers.getSigners();
@@ -67,10 +72,10 @@ describe("Vault", function () {
     });
 
     it("Accepts DAI deposits, returns vault shares", async function () {
-      let expectedBalance = await mockCurve3Pool.lpTokenAmount(parseEther("2500"));
-      expect(await vault.balanceOf(staker.address)).to.equal(
-        expectedBalance
+      let expectedBalance = await mockCurve3Pool.lpTokenAmount(
+        parseEther("2500")
       );
+      expect(await vault.balanceOf(staker.address)).to.equal(expectedBalance);
     });
 
     it("Only owner can deposit", async function () {
@@ -109,16 +114,14 @@ describe("Vault", function () {
     });
 
     it("Only owner can withdraw", async function () {
-      expect(
-        vault.connect(staker).withdraw(staker.address)
-      ).to.be.revertedWith("Ownable: caller is not the owner");
+      expect(vault.connect(staker).withdraw(staker.address)).to.be.revertedWith(
+        "Ownable: caller is not the owner"
+      );
     });
 
     it("Withdrawal burns vault shares", async function () {
       await vault.connect(owner).withdraw(staker.address);
-      expect(await vault.balanceOf(staker.address)).to.equal(
-        parseEther("0")
-      );
+      expect(await vault.balanceOf(staker.address)).to.equal(parseEther("0"));
     });
 
     it("Withdrawal returns Dai value of vault shares, minus Curve withdrawal slippage", async function () {
