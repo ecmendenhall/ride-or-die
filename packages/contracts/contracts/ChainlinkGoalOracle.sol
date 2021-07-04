@@ -39,7 +39,7 @@ contract ChainlinkGoalOracle is ChainlinkClient {
         chainlinkOracle = chainlinkOracle_;
         chainlinkJobId = chainlinkJobId_;
         apiBaseUrl = apiBaseUrl_;
-        setPublicChainlinkToken();
+        //setPublicChainlinkToken();
     }
 
     function verificationURL(uint256 goalId) public view returns (string memory) {
