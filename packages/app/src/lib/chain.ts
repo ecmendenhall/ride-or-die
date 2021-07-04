@@ -32,7 +32,6 @@ const getDaiContract = (provider: ethers.providers.Web3Provider) => {
 };
 
 const getGoalManagerContract = (provider: ethers.providers.Web3Provider) => {
-  console.log("goal manager: ", config.contracts.goalManager.address);
   return new ethers.Contract(
     config.contracts.goalManager.address,
     config.contracts.goalManager.abi,

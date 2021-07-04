@@ -9,26 +9,7 @@ import {
 } from "ethers/lib/utils";
 
 export function Goal() {
-  const { contracts, linkedAddress, goal, setGoal } = useContext(Context);
-
-  useEffect(() => {
-    const loadGoal = async () => {
-      if (contracts && setGoal) {
-        let goalId = await contracts.goalManager.goalsByStaker(linkedAddress);
-        let [staker, target, stake, created, expires] =
-          await contracts.goalManager.goals(goalId);
-        console.log(staker, target, stake, created, expires);
-        /* setGoal({
-          staker: staker,
-          target: target,
-          stake: stake,
-          created: created,
-          expires: expires,
-        }); */
-      }
-    };
-    loadGoal();
-  }, [contracts, linkedAddress, goal, setGoal]);
+  const { goal } = useContext(Context);
 
   return <div>{goal ? ActiveGoal() : CreateGoal()}</div>;
 }

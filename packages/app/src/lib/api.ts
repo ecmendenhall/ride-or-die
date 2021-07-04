@@ -1,6 +1,6 @@
-declare const window : any;
+declare const window: any;
 
-const login = async (address : string) => {
+const login = async (address: string) => {
   let response = await fetch("/login", {
     method: "POST",
     body: JSON.stringify({
@@ -15,7 +15,7 @@ const login = async (address : string) => {
   return nonce;
 };
 
-const sign = async (address : string, signature : string) => {
+const sign = async (address: string, signature: string) => {
   let response = await fetch("/login/sign", {
     method: "POST",
     body: JSON.stringify({
@@ -28,16 +28,23 @@ const sign = async (address : string, signature : string) => {
     },
   });
   let { token } = await response.json();
-  window.localStorage.setItem('ride-or-die-token', token);
+  window.localStorage.setItem("ride-or-die-token", token);
 };
 
 const linkStrava = async () => {
   let response = await fetch("/link-strava");
   let { location } = await response.json();
   window.location = location;
-}
+};
 
 const stravaProfile = async () => {
+  return {
+    imageURL:
+      "https://dgalywyr863hv.cloudfront.net/pictures/athletes/10990320/16199602/1/large.jpg",
+    recentRides: 1000,
+    thisYear: 10000,
+    allTime: 100000,
+  };
   let response = await fetch("/profile");
   console.log(response);
   let { athlete, stats } = await response.json();
@@ -52,7 +59,7 @@ const exports = {
   login: login,
   sign: sign,
   linkStrava: linkStrava,
-  stravaProfile: stravaProfile
+  stravaProfile: stravaProfile,
 };
 
 export default exports;

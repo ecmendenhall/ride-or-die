@@ -5,6 +5,7 @@ import jwtDecode from "jwt-decode";
 import { BigNumber } from "ethers";
 
 import chain from "./lib/chain";
+import api from "./lib/api";
 
 declare const window: any;
 
@@ -82,29 +83,48 @@ const context: IContext = {
 export const Context = React.createContext(context);
 
 export function Provider<T>({ children }: React.PropsWithChildren<T>) {
+  const [activeAddress, setActiveAddress] = useState<string>();
   const [ethEnabled, setEthEnabled] = useState<boolean>(false);
   const [eth, setEth] = useState<Eth>();
-  const [activeAddress, setActiveAddress] = useState<string>();
+  const [contracts, setContracts] = useState<Contracts>();
   const [linkedAddress, setLinkedAddress] = useState<string>();
   const [stravaProfile, setStravaProfile] = useState<StravaProfile>();
-  const [contracts, setContracts] = useState<Contracts>();
   const [goal, setGoal] = useState<Goal>();
 
   useEffect(() => {
-    const connectChain = async () => {
+    const connect = async () => {
       let activeAddress = await chain.connect();
       setActiveAddress(activeAddress);
       setEthEnabled(true);
       let eth = await chain.createProvider();
       setEth(eth);
-      let contracts = await chain.loadContracts(eth.provider);
+      let contracts = chain.loadContracts(eth.provider);
       setContracts(contracts);
+      let token = window.localStorage.getItem("ride-or-die-token");
+      if (token) {
+        let { address: linkedAddress }: JWTPayload = jwtDecode(token);
+        setLinkedAddress(linkedAddress);
+        let profile = await api.stravaProfile();
+        setStravaProfile(profile);
+        let goalId = await contracts.goalManager.goalsByStaker(linkedAddress);
+        if (goalId.gt(0)) {
+          let [staker, target, stake, created, expires] =
+            await contracts.goalManager.goals(goalId);
+          console.log(staker, target, stake);
+          setGoal({
+            staker: staker,
+            target: target,
+            stake: stake,
+            created: created,
+            expires: expires,
+          });
+        }
+      }
     };
-    connectChain();
-    let token = window.localStorage.getItem("ride-or-die-token");
-    if (token) {
-      let { address }: JWTPayload = jwtDecode(token);
-      setLinkedAddress(address);
+    try {
+      connect();
+    } catch (e) {
+      console.log(e);
     }
   }, []);
 

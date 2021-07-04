@@ -6,12 +6,14 @@ import { Panel } from "./components/panel";
 import { Title } from "./components/title";
 import { Goal } from "./components/goal";
 import { Login } from "./components/login";
+import { Rewards } from "./components/rewards";
 
 function Welcome() {
   return (
     <div className="grid grid-cols-3 gap-6 items-center justify-items-center">
       <Strava />
       <Goal />
+      <Rewards />
     </div>
   );
 }
