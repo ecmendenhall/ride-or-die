@@ -15,7 +15,7 @@ export interface JWTPayload {
 const requireLogin = expressJwt({
   secret: config.SECRET_KEY,
   algorithms: ["HS256"],
-  getToken: (req) => req.cookies.token,
+  getToken: (req) => req.headers.authorization?.split(' ')[1] || req.params.token || req.cookies.token
 });
 
 const generateNonce = () => {

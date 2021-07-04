@@ -23,7 +23,7 @@ const authURL = () => {
   url.searchParams.append("client_id", config.STRAVA_CLIENT_ID);
   url.searchParams.append(
     "redirect_uri",
-    "http://localhost:3000/link-strava/complete"
+    `http://localhost:3001/link-strava/complete`
   );
   url.searchParams.append("response_type", "code");
   url.searchParams.append("scope", "read,activity:read");
@@ -47,13 +47,20 @@ const getToken = async (code: string) => {
 };
 
 const getProfile = async (user: User) => {
-  let response = await fetch("https://www.strava.com/api/v3/athlete", {
+  let athleteResponse = await fetch("https://www.strava.com/api/v3/athlete", {
     headers: {
       Authorization: `Bearer ${user?.token?.accessToken}`,
     },
   });
-  let responseData = await response.json();
-  return responseData;
+  let athleteResponseData = await athleteResponse.json();
+  let { id } = athleteResponseData;
+  let statsResponse = await fetch(`https://www.strava.com/api/v3/athletes/${id}/stats`, {
+    headers: {
+      Authorization: `Bearer ${user?.token?.accessToken}`,
+    },
+  });
+  let statsResponseData = await statsResponse.json();
+  return { athlete: athleteResponseData, stats: statsResponseData };
 };
 
 const getProgress = async (user: User, after: number, before: number) => {

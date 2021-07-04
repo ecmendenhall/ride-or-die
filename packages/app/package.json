@@ -13,11 +13,14 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "@types/jest": "^26.0.23",
+    "@types/jwt-decode": "^3.1.0",
     "@types/node": "^12.20.15",
     "@types/react": "^17.0.13",
     "@types/react-dom": "^17.0.8",
     "autoprefixer": "^9.8.6",
     "ethers": "^5.4.1",
+    "jwt-decode": "^3.1.2",
+    "luxon": "^1.27.0",
     "postcss": "^7.0.36",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -51,13 +54,8 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "https://github.com/ecmendenhall/ride-or-die#readme",
-  "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ecmendenhall/ride-or-die.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ecmendenhall/ride-or-die/issues"
+  "proxy": "http://localhost:3001",
+  "devDependencies": {
+    "@types/luxon": "^1.27.0"
   }
 }
