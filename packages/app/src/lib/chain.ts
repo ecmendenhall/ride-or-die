@@ -18,6 +18,7 @@ const loadContracts = (provider: ethers.providers.Web3Provider) => {
   return {
     dai: getDaiContract(provider),
     goalManager: getGoalManagerContract(provider),
+    vault: getVaultContract(provider),
   };
 };
 
@@ -35,6 +36,14 @@ const getGoalManagerContract = (provider: ethers.providers.Web3Provider) => {
   return new ethers.Contract(
     config.contracts.goalManager.address,
     config.contracts.goalManager.abi,
+    provider
+  );
+};
+
+const getVaultContract = (provider: ethers.providers.Web3Provider) => {
+  return new ethers.Contract(
+    config.contracts.vault.address,
+    config.contracts.vault.abi,
     provider
   );
 };

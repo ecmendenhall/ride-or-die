@@ -21,6 +21,7 @@ interface Eth {
 interface Contracts {
   dai: ethers.Contract;
   goalManager: ethers.Contract;
+  vault: ethers.Contract;
 }
 
 interface StravaProfile {
@@ -36,6 +37,11 @@ interface Goal {
   target: BigNumber;
   created: BigNumber;
   expires: BigNumber;
+}
+
+interface Balances {
+  vault: BigNumber;
+  deadpool: BigNumber;
 }
 
 interface IContext {
@@ -61,6 +67,10 @@ interface IContext {
     | undefined;
   goal: Goal | undefined;
   setGoal: React.Dispatch<React.SetStateAction<Goal | undefined>> | undefined;
+  balances: Balances | undefined;
+  setBalances:
+    | React.Dispatch<React.SetStateAction<Balances | undefined>>
+    | undefined;
 }
 
 const context: IContext = {
@@ -78,6 +88,8 @@ const context: IContext = {
   setContracts: undefined,
   goal: undefined,
   setGoal: undefined,
+  balances: undefined,
+  setBalances: undefined,
 };
 
 export const Context = React.createContext(context);
@@ -90,6 +102,7 @@ export function Provider<T>({ children }: React.PropsWithChildren<T>) {
   const [linkedAddress, setLinkedAddress] = useState<string>();
   const [stravaProfile, setStravaProfile] = useState<StravaProfile>();
   const [goal, setGoal] = useState<Goal>();
+  const [balances, setBalances] = useState<Balances>();
 
   useEffect(() => {
     const connect = async () => {
@@ -106,6 +119,11 @@ export function Provider<T>({ children }: React.PropsWithChildren<T>) {
         setLinkedAddress(linkedAddress);
         let profile = await api.stravaProfile();
         setStravaProfile(profile);
+        let vaultBalance = await contracts.vault.balanceOf(linkedAddress);
+        setBalances({
+          vault: vaultBalance,
+          deadpool: vaultBalance,
+        });
         let goalId = await contracts.goalManager.goalsByStaker(linkedAddress);
         if (goalId.gt(0)) {
           let [staker, target, stake, created, expires] =
@@ -126,7 +144,7 @@ export function Provider<T>({ children }: React.PropsWithChildren<T>) {
     } catch (e) {
       console.log(e);
     }
-  }, []);
+  }, [goal]);
 
   return (
     <Context.Provider
@@ -145,6 +163,8 @@ export function Provider<T>({ children }: React.PropsWithChildren<T>) {
         setContracts,
         goal,
         setGoal,
+        balances,
+        setBalances,
       }}
     >
       {children}

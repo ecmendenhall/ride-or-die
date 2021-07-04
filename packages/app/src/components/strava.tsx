@@ -4,18 +4,7 @@ import { Context } from "../Context";
 import api from "../lib/api";
 
 export function Strava() {
-  const { stravaProfile, setStravaProfile } = useContext(Context);
-
-  useEffect(() => {
-    // const loadProfile = async () => {
-    //   let profile = await api.stravaProfile();
-    //   console.log(profile);
-    //   if (profile && setStravaProfile) {
-    //     setStravaProfile(profile);
-    //   }
-    // };
-    // loadProfile();
-  }, [stravaProfile, setStravaProfile]);
+  const { stravaProfile } = useContext(Context);
 
   const onClick = () => {
     api.linkStrava();

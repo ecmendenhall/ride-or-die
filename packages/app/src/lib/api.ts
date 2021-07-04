@@ -46,7 +46,6 @@ const stravaProfile = async () => {
     allTime: 100000,
   };
   let response = await fetch("/profile");
-  console.log(response);
   let { athlete, stats } = await response.json();
   let { profile: imageURL } = athlete;
   let { distance: recentRides } = stats.recent_ride_totals;

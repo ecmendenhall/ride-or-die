@@ -25,13 +25,14 @@ export function CreateGoal() {
       if (eth && contracts && setGoal) {
         let stakeWei = parseEther(stakeValue);
         let distanceWei = parseUnits(distanceValue, "wei");
+        let deadlineTimestamp = DateTime.fromISO(deadlineValue).toSeconds();
         let { signer } = eth;
         await contracts.dai
           .connect(signer)
           .approve(contracts.goalManager.address, stakeWei);
         await contracts.goalManager
           .connect(signer)
-          .createGoal(distanceWei, stakeWei, "abc123");
+          .createGoal(distanceWei, stakeWei, deadlineTimestamp, "abc123");
         let goalId = await contracts.goalManager.goalsByStaker(linkedAddress);
         let [staker, target, stake, created, expires] =
           await contracts.goalManager.goals(goalId);
@@ -88,8 +89,7 @@ export function CreateGoal() {
             onChange={(e) => {
               setDeadlineValue(e.target.value);
             }}
-            type="date"
-            placeholder="mm/dd/yyy"
+            type="datetime-local"
             className="px-3 py-3 placeholder-black relative bg-white bg-white rounded text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full"
           />
         </div>
