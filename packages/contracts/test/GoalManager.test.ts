@@ -15,6 +15,7 @@ describe("GoalManager", function () {
   const STAKE_AMOUNT = parseEther("2500");
   const IPFS_CID =
     "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi";
+  const DEADLINE = 1625436118;
 
   let owner: SignerWithAddress;
   let goalSetter: SignerWithAddress;
@@ -82,14 +83,14 @@ describe("GoalManager", function () {
     it("Creates a new goal for user", async function () {
       await goalManager
         .connect(goalSetter)
-        .createGoal(100, STAKE_AMOUNT, IPFS_CID);
+        .createGoal(100, STAKE_AMOUNT, DEADLINE, IPFS_CID);
       let [staker, target, stake, created, expires] = await goalManager.goals(
         1
       );
 
       expect(staker).to.equal(goalSetter.address);
       expect(target).to.equal(100);
-      expect(expires.sub(created)).to.equal(30 * 24 * 60 * 60);
+      expect(expires).to.equal(DEADLINE);
       expect(stake).to.equal(STAKE_AMOUNT);
     });
 
@@ -98,7 +99,7 @@ describe("GoalManager", function () {
         let initialBalance = await mockDai.balanceOf(goalSetter.address);
         await goalManager
           .connect(goalSetter)
-          .createGoal(100, STAKE_AMOUNT, IPFS_CID);
+          .createGoal(100, STAKE_AMOUNT, DEADLINE, IPFS_CID);
         let newBalance = await mockDai.balanceOf(goalSetter.address);
 
         expect(newBalance).to.equal(
@@ -110,7 +111,7 @@ describe("GoalManager", function () {
         let initialBalance = await mockDai.balanceOf(goalSetter.address);
         await goalManager
           .connect(goalSetter)
-          .createGoal(100, STAKE_AMOUNT, IPFS_CID);
+          .createGoal(100, STAKE_AMOUNT, DEADLINE, IPFS_CID);
         let newBalance = await vault.balanceOf(goalSetter.address);
         let expectedBalance = await mockCurve3Pool.lpTokenAmount(STAKE_AMOUNT);
 
@@ -121,18 +122,20 @@ describe("GoalManager", function () {
         let overStake = STAKE_AMOUNT.add(parseEther("1"));
         mockDai.connect(goalSetter).approve(goalManager.address, overStake);
         await expect(
-          goalManager.connect(goalSetter).createGoal(100, overStake, IPFS_CID)
+          goalManager
+            .connect(goalSetter)
+            .createGoal(100, overStake, DEADLINE, IPFS_CID)
         ).to.be.revertedWith("Insufficient balance");
       });
 
       it("Reverts if goal is already set", async function () {
         await goalManager
           .connect(goalSetter)
-          .createGoal(100, STAKE_AMOUNT.div(2), IPFS_CID);
+          .createGoal(100, STAKE_AMOUNT.div(2), DEADLINE, IPFS_CID);
         await expect(
           goalManager
             .connect(goalSetter)
-            .createGoal(100, STAKE_AMOUNT.div(2), IPFS_CID)
+            .createGoal(100, STAKE_AMOUNT.div(2), DEADLINE, IPFS_CID)
         ).to.be.revertedWith("Goal already set");
       });
     });
@@ -141,14 +144,14 @@ describe("GoalManager", function () {
       it("Returns an ERC721 token to the goal setter", async function () {
         await goalManager
           .connect(goalSetter)
-          .createGoal(100, STAKE_AMOUNT, IPFS_CID);
+          .createGoal(100, STAKE_AMOUNT, DEADLINE, IPFS_CID);
         expect(await goalManager.balanceOf(goalSetter.address)).to.equal(1);
       });
 
       it("Sets token URI", async function () {
         await goalManager
           .connect(goalSetter)
-          .createGoal(100, STAKE_AMOUNT, IPFS_CID);
+          .createGoal(100, STAKE_AMOUNT, DEADLINE, IPFS_CID);
         expect(await goalManager.tokenURI(1)).to.equal(IPFS_CID);
       });
     });
@@ -160,7 +163,7 @@ describe("GoalManager", function () {
     beforeEach(async () => {
       await goalManager
         .connect(goalSetter)
-        .createGoal(100, STAKE_AMOUNT, IPFS_CID);
+        .createGoal(100, STAKE_AMOUNT, DEADLINE, IPFS_CID);
       vaultBalanceBeforeWithdrawal = await vault.balanceOf(goalSetter.address);
       await goalManager.connect(goalSetter).redeemGoal(1);
     });
@@ -200,7 +203,7 @@ describe("GoalManager", function () {
     it("Burns the goal token", async function () {
       await goalManager
         .connect(goalSetter)
-        .createGoal(100, STAKE_AMOUNT, IPFS_CID);
+        .createGoal(100, STAKE_AMOUNT, DEADLINE, IPFS_CID);
       await goalManager.connect(goalSetter).liquidateGoal(1);
       expect(await goalManager.balanceOf(goalSetter.address)).to.equal(0);
     });
@@ -208,7 +211,7 @@ describe("GoalManager", function () {
     it("Deletes the goal data", async function () {
       await goalManager
         .connect(goalSetter)
-        .createGoal(100, STAKE_AMOUNT, IPFS_CID);
+        .createGoal(100, STAKE_AMOUNT, DEADLINE, IPFS_CID);
       await goalManager.connect(goalSetter).liquidateGoal(1);
       let [staker, target, stake, created, expires] = await goalManager.goals(
         1

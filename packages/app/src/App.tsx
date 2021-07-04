@@ -1,33 +1,35 @@
-import React from 'react';
-import {LinkStrava} from "./components/strava";
-import {Container} from "./components/container";
-import {Panel} from "./components/panel";
-import {Title} from "./components/title";
-import {Goal} from "./components/goal";
-import {EthAuthentication} from "./components/ethAuthentication";
+import React from "react";
+import { Provider } from "./Context";
+import { Strava } from "./components/strava";
+import { Container } from "./components/container";
+import { Panel } from "./components/panel";
+import { Title } from "./components/title";
+import { Goal } from "./components/goal";
+import { Login } from "./components/login";
+import { Rewards } from "./components/rewards";
 
 function Welcome() {
-    return (
-        <div className="grid grid-cols-3 gap-6">
-            <LinkStrava/>
-            <Goal/>
-            <div>
-                <p>We should put some more UI components and stuff in here.</p>
-            </div>
-        </div>
-    )
+  return (
+    <div className="grid grid-cols-3 gap-6 items-center justify-items-center">
+      <Strava />
+      <Goal />
+      <Rewards />
+    </div>
+  );
 }
 
 function App() {
-    return (
-        <Container>
-            <EthAuthentication/>
-            <Title/>
-            <Panel>
-                <Welcome/>
-            </Panel>
-        </Container>
-    );
+  return (
+    <Provider>
+      <Container>
+        <Login />
+        <Title />
+        <Panel>
+          <Welcome />
+        </Panel>
+      </Container>
+    </Provider>
+  );
 }
 
 export default App;

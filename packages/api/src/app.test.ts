@@ -90,11 +90,11 @@ describe("API", () => {
           "https://strava.com/oauth/authorize?client_id=12345&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthenticate%2Fcomplete&response_type=code&scope=read%2Cactivity%3Aread&approval_prompt=force"
         );
         response = await request(app).get("/link-strava");
-        redirectUri = new URL(response.headers.location);
+        redirectUri = new URL(response.body.location);
       });
 
-      it("returns a 302 found", () => {
-        expect(response.statusCode).toBe(302);
+      it("returns a 200", () => {
+        expect(response.statusCode).toBe(200);
       });
 
       it("redirects to Strava", () => {
@@ -143,12 +143,12 @@ describe("API", () => {
       });
 
       describe("success", () => {
-        it("returns a 302 to the profile route", async () => {
+        it("returns a 302 to the frontend", async () => {
           let response = await request(app)
             .get("/link-strava/complete")
             .query({ code: "abc123", scope: "read,activity:read" });
           expect(response.statusCode).toBe(302);
-          expect(response.headers.location).toBe("/profile");
+          expect(response.headers.location).toBe("http://localhost:3000/");
         });
 
         it("updates User with associated Strava ID and token", async () => {
@@ -187,7 +187,8 @@ describe("API", () => {
       });
       mockUsers.find.mockResolvedValue({ id: 1, address: "0x1" });
       mockStrava.getProfile.mockResolvedValue({
-        id: 5,
+        athlete: { id: 5 },
+        stats: {},
       });
     });
 
@@ -200,7 +201,8 @@ describe("API", () => {
       let response = await request(app).get("/profile");
       expect(response.body).toStrictEqual({
         address: "0x1",
-        profile: { id: 5 },
+        athlete: { id: 5 },
+        stats: {},
       });
     });
   });
@@ -221,7 +223,7 @@ describe("API", () => {
     it("returns progress data", async () => {
       let response = await request(app).get("/progress/0x1");
       expect(response.body).toStrictEqual({
-        totalDistance: 500
+        totalDistance: 500,
       });
     });
   });

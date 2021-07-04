@@ -41,6 +41,7 @@ contract GoalManager is ERC721 {
     function createGoal(
         uint256 target,
         uint256 stake,
+        uint256 expires,
         string calldata metadataCid
     ) public {
         require(goalsByStaker[msg.sender] == 0, "Goal already set");
@@ -52,7 +53,7 @@ contract GoalManager is ERC721 {
             target: target,
             stake: stake,
             created: block.timestamp,
-            expires: block.timestamp + 30 days
+            expires: expires
         });
         goals[goalId] = goal;
         goalsByStaker[msg.sender] = goalId;

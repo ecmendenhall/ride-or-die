@@ -1,14 +1,17 @@
 import "reflect-metadata";
 import express from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 import config from "../config";
 import strava from "./strava";
 import users from "./users";
 import tokens from "./tokens";
 import auth, { JWTPayload } from "./auth";
+import { addSyntheticLeadingComment } from "typescript";
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 app.use(cookieParser());
@@ -23,7 +26,7 @@ app.post("/login/sign", async (req, res) => {
   let authenticated = await auth.verifySignature(address, signature);
   if (authenticated) {
     let token = auth.generateJWT(address);
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, {httpOnly: true});
     res.status(200).send({ token: token });
   } else {
     res.status(401).send();
@@ -31,7 +34,7 @@ app.post("/login/sign", async (req, res) => {
 });
 
 app.get("/link-strava", auth.requireLogin, (req, res) => {
-  res.redirect(302, strava.authURL());
+  res.status(200).send({location: strava.authURL()});
 });
 
 app.get("/link-strava/complete", auth.requireLogin, async (req, res) => {
@@ -51,7 +54,7 @@ app.get("/link-strava/complete", auth.requireLogin, async (req, res) => {
       refreshToken: responseData.refresh_token,
       scopes: "read,activity:read",
     });
-    res.redirect(302, "/profile");
+    res.redirect(302, "http://localhost:3000/");
   }
 });
 
@@ -59,8 +62,8 @@ app.get("/profile", auth.requireLogin, async (req, res) => {
   let { address } = req.user as JWTPayload;
   let user = await users.find(address);
   if (user) {
-    let profile = await strava.getProfile(user);
-    res.status(200).send({ address: user.address, profile: profile });
+    let {athlete, stats} = await strava.getProfile(user);
+    res.status(200).send({ address: user.address, athlete: athlete, stats: stats});
   } else {
     res.status(404);
   }
