@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.7.0;
+pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import "@chainlink/contracts/src/v0.7/ChainlinkClient.sol";
+import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
+import "hardhat/console.sol";
 
 interface IGoalManager {
     struct Goal {
@@ -17,7 +18,7 @@ interface IGoalManager {
     function goals(uint256 goalId) external view returns (Goal memory);
 }
 
-contract Oracle is ChainlinkClient {
+contract ChainlinkGoalOracle is ChainlinkClient {
     using Chainlink for Chainlink.Request;
 
     address public chainlinkOracle;
@@ -33,12 +34,12 @@ contract Oracle is ChainlinkClient {
         address chainlinkOracle_,
         bytes32 chainlinkJobId_,
         string memory apiBaseUrl_
-    ) {
+    ) public {
         goalManager = IGoalManager(goalManager_);
         chainlinkOracle = chainlinkOracle_;
         chainlinkJobId = chainlinkJobId_;
         apiBaseUrl = apiBaseUrl_;
-        //setPublicChainlinkToken();
+        setPublicChainlinkToken();
     }
 
     function verificationURL(uint256 goalId) public view returns (string memory) {
@@ -69,7 +70,7 @@ contract Oracle is ChainlinkClient {
     function getGoalProgress(uint256 goalId) public returns (bytes32) {
         Chainlink.Request memory request = newChainlinkRequest(goalId);
         uint256 fee = 0.1 * 10**18;
-        //return sendChainlinkRequestTo(chainlinkOracle, request, fee);
+        bytes32 id = sendChainlinkRequestTo(chainlinkOracle, request, fee);
     }
 
     function fulfill(bytes32 requestId, uint256 distance) public {
