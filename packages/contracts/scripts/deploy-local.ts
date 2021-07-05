@@ -1,6 +1,6 @@
 import { ethers, network } from "hardhat";
 import { parseEther } from "ethers/lib/utils";
-import { Vault, GoalManager } from "../typechain";
+import { Vault, GoalManager, GoalOracle } from "../typechain";
 
 const DAI = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 const STAKEDAO_VAULT = "0xB17640796e4c27a39AF51887aff3F8DC0daF9567";
@@ -25,13 +25,17 @@ async function main() {
 
   await vault.connect(owner).transferOwnership(goalManager.address);
 
+  const GoalOracle = await ethers.getContractFactory("GoalOracle");
+  let goalOracle = await GoalOracle.deploy();
+  console.log("GoalOracle deployed to:", goalOracle.address);
+
   const Faucet = await ethers.getContractFactory("Faucet");
   let faucet = await Faucet.deploy(UNISWAP_ROUTER);
   console.log("Faucet deployed to:", faucet.address);
 
   await network.provider.send("hardhat_setBalance", [
     faucet.address,
-    "0x152d02c7e14af6800000" // 100k ETH
+    "0x152d02c7e14af6800000", // 100k ETH
   ]);
   await faucet.sendTokens(DAI, DEMO_ACCOUNT);
 }

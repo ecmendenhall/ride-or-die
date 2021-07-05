@@ -54,16 +54,19 @@ const getProfile = async (user: User) => {
   });
   let athleteResponseData = await athleteResponse.json();
   let { id } = athleteResponseData;
-  let statsResponse = await fetch(`https://www.strava.com/api/v3/athletes/${id}/stats`, {
-    headers: {
-      Authorization: `Bearer ${user?.token?.accessToken}`,
-    },
-  });
+  let statsResponse = await fetch(
+    `https://www.strava.com/api/v3/athletes/${id}/stats`,
+    {
+      headers: {
+        Authorization: `Bearer ${user?.token?.accessToken}`,
+      },
+    }
+  );
   let statsResponseData = await statsResponse.json();
   return { athlete: athleteResponseData, stats: statsResponseData };
 };
 
-const getProgress = async (user: User, after: number, before: number) => {
+const getProgress = async (user: User, after: string, before: string) => {
   let allActivities: StravaActivity[] = [];
   let page = 1;
   while (true) {

@@ -126,7 +126,7 @@ export function Provider<T>({ children }: React.PropsWithChildren<T>) {
         });
         let goalId = await contracts.goalManager.goalsByStaker(linkedAddress);
         if (goalId.gt(0)) {
-          let [staker, target, stake, created, expires] =
+          let [_id, _pos, staker, target, stake, created, expires] =
             await contracts.goalManager.goals(goalId);
           console.log(staker, target, stake);
           setGoal({
