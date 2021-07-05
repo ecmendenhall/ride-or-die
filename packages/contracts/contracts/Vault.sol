@@ -12,6 +12,7 @@ interface StakeDAOVault is IERC20 {
     function deposit(uint256 _amount) external;
 
     function withdraw(uint256 _amount) external;
+
 }
 
 interface Curve3Pool {
@@ -27,23 +28,27 @@ interface Curve3Pool {
 
 contract Vault is Ownable, ERC20 {
     using SafeERC20 for IERC20;
+    using SafeERC20 for StakeDAOVault;
     using SafeMath for uint256;
 
     IERC20 public dai;
     IERC20 public threeCrv;
     Curve3Pool public curve3Pool;
     StakeDAOVault public stakeDAOvault;
+    address public deadpool;
 
     constructor(
         address _stakeDAOvault,
         address _dai,
         address _threeCrv,
-        address _curve3Pool
+        address _curve3Pool,
+        address _deadpool
     ) ERC20("Ride or Die Staking Vault", "RIDE-sd3Crv") {
         stakeDAOvault = StakeDAOVault(_stakeDAOvault);
         dai = IERC20(_dai);
         threeCrv = IERC20(_threeCrv);
         curve3Pool = Curve3Pool(_curve3Pool);
+        deadpool = _deadpool;
     }
 
     function deposit(address depositor, uint256 amount)
@@ -94,6 +99,13 @@ contract Vault is Ownable, ERC20 {
 
         dai.transfer(shareholder, daiAmount);
         return daiAmount;
+    }
+
+    function liquidate(address shareholder) public onlyOwner returns (uint256) {
+        uint256 shares = balanceOf(shareholder);
+        _burn(shareholder, shares);
+        stakeDAOvault.safeTransfer(address(deadpool), shares);
+        return shares;
     }
 
     function transfer(address recipient, uint256 amount)

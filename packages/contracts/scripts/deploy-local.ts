@@ -15,19 +15,35 @@ const DEMO_ACCOUNT = "0x79d31bFcA5Fda7A4F15b36763d2e44C99D811a6C";
 async function main() {
   const [owner] = await ethers.getSigners();
 
-  const Vault = await ethers.getContractFactory("Vault");
-  let vault = await Vault.deploy(STAKEDAO_VAULT, DAI, THREE_CRV, THREE_POOL);
-  console.log("Vault deployed to:", vault.address);
-
-  const GoalManager = await ethers.getContractFactory("GoalManager");
-  let goalManager = await GoalManager.deploy(DAI, vault.address);
-  console.log("GoalManager deployed to:", goalManager.address);
-
-  await vault.connect(owner).transferOwnership(goalManager.address);
-
   const GoalOracle = await ethers.getContractFactory("GoalOracle");
   let goalOracle = await GoalOracle.deploy();
   console.log("GoalOracle deployed to:", goalOracle.address);
+
+  const Deadpool = await ethers.getContractFactory("Deadpool");
+  let deadpool = await Deadpool.deploy(STAKEDAO_VAULT);
+  console.log("Deadpool deployed to:", deadpool.address);
+
+  const Vault = await ethers.getContractFactory("Vault");
+  let vault = await Vault.deploy(
+    STAKEDAO_VAULT,
+    DAI,
+    THREE_CRV,
+    THREE_POOL,
+    deadpool.address
+  );
+  console.log("Vault deployed to:", vault.address);
+
+  const GoalManager = await ethers.getContractFactory("GoalManager");
+  let goalManager = await GoalManager.deploy(
+    DAI,
+    vault.address,
+    goalOracle.address,
+    deadpool.address
+  );
+  console.log("GoalManager deployed to:", goalManager.address);
+
+  await vault.connect(owner).transferOwnership(goalManager.address);
+  await deadpool.connect(owner).transferOwnership(goalManager.address);
 
   const Faucet = await ethers.getContractFactory("Faucet");
   let faucet = await Faucet.deploy(UNISWAP_ROUTER);
