@@ -26,7 +26,7 @@ app.post("/login/sign", async (req, res) => {
   let authenticated = await auth.verifySignature(address, signature);
   if (authenticated) {
     let token = auth.generateJWT(address);
-    res.cookie("token", token, {httpOnly: true});
+    res.cookie("token", token, { httpOnly: true });
     res.status(200).send({ token: token });
   } else {
     res.status(401).send();
@@ -34,7 +34,7 @@ app.post("/login/sign", async (req, res) => {
 });
 
 app.get("/link-strava", auth.requireLogin, (req, res) => {
-  res.status(200).send({location: strava.authURL()});
+  res.status(200).send({ location: strava.authURL() });
 });
 
 app.get("/link-strava/complete", auth.requireLogin, async (req, res) => {
@@ -62,8 +62,10 @@ app.get("/profile", auth.requireLogin, async (req, res) => {
   let { address } = req.user as JWTPayload;
   let user = await users.find(address);
   if (user) {
-    let {athlete, stats} = await strava.getProfile(user);
-    res.status(200).send({ address: user.address, athlete: athlete, stats: stats});
+    let { athlete, stats } = await strava.getProfile(user);
+    res
+      .status(200)
+      .send({ address: user.address, athlete: athlete, stats: stats });
   } else {
     res.status(404);
   }
@@ -72,21 +74,12 @@ app.get("/profile", auth.requireLogin, async (req, res) => {
 app.get("/progress/:address/", async (req, res) => {
   let user = await users.find(req.params.address);
   if (user) {
-    let now = Math.floor(Date.now() / 1000);
-    let oneMonth = 2592000;
-    let progressData = await strava.getProgress(user, now - oneMonth, now);
-    res.status(200).send(progressData);
-  } else {
-    res.status(404);
-  }
-});
-
-app.get("/oracle/:address/", async (req, res) => {
-  let user = await users.find(req.params.address);
-  if (user) {
-    let now = Math.floor(Date.now() / 1000);
-    let oneMonth = 2592000;
-    let progressData = await strava.getProgress(user, now - oneMonth, now);
+    let { after, before } = req.query;
+    let progressData = await strava.getProgress(
+      user,
+      after as string,
+      before as string
+    );
     res.status(200).send(progressData);
   } else {
     res.status(404);

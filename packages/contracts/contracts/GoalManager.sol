@@ -21,6 +21,8 @@ contract GoalManager is ERC721 {
     IVault public vault;
 
     struct Goal {
+        uint256 id;
+        uint256 pos;
         address staker;
         uint256 target;
         uint256 stake;
@@ -30,6 +32,8 @@ contract GoalManager is ERC721 {
 
     mapping(uint256 => Goal) public goals;
     mapping(address => uint256) public goalsByStaker;
+
+    uint256[] public active;
 
     constructor(address _token, address _vault)
         ERC721("Ride or Die Goal Token", "RIDE")
@@ -48,13 +52,17 @@ contract GoalManager is ERC721 {
         require(token.balanceOf(msg.sender) >= stake, "Insufficient balance");
 
         uint256 goalId = totalSupply() + 1;
+        active.push(goalId);
         Goal memory goal = Goal({
+            id: goalId,
+            pos: active.length - 1,
             staker: msg.sender,
             target: target,
             stake: stake,
             created: block.timestamp,
             expires: expires
         });
+
         goals[goalId] = goal;
         goalsByStaker[msg.sender] = goalId;
         _mint(msg.sender, goalId);
@@ -67,6 +75,7 @@ contract GoalManager is ERC721 {
 
     function redeemGoal(uint256 goalId) public {
         _burn(goalId);
+        _remove(goalId);
         delete goalsByStaker[goals[goalId].staker];
         delete goals[goalId];
         vault.withdraw(msg.sender);
@@ -74,6 +83,22 @@ contract GoalManager is ERC721 {
 
     function liquidateGoal(uint256 goalId) public {
         _burn(goalId);
+        _remove(goalId);
+    }
+
+    function activeGoals() external view returns(uint256[] memory) {
+        return active;
+    }
+
+    function _remove(uint256 goalId) internal {
+        uint256 _move    = active[active.length - 1];
+        if (goalId != _move) {
+            uint256 _index   = goals[goalId].pos;
+            active[_index]   = _move;
+            goals[_move].pos = _index;
+        }
+        active.pop();
+        delete goalsByStaker[goals[goalId].staker];
         delete goals[goalId];
     }
 }

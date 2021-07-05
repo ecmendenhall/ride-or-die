@@ -24,7 +24,8 @@ export function CreateGoal() {
     const createGoal = async () => {
       if (eth && contracts && setGoal) {
         let stakeWei = parseEther(stakeValue);
-        let distanceWei = parseUnits(distanceValue, "wei");
+        let distanceInMeters = Number.parseInt(distanceValue) * 1000;
+        let distanceWei = parseUnits(distanceInMeters.toString(), "wei");
         let deadlineTimestamp = DateTime.fromISO(deadlineValue).toSeconds();
         let { signer } = eth;
         await contracts.dai
@@ -34,7 +35,7 @@ export function CreateGoal() {
           .connect(signer)
           .createGoal(distanceWei, stakeWei, deadlineTimestamp, "abc123");
         let goalId = await contracts.goalManager.goalsByStaker(linkedAddress);
-        let [staker, target, stake, created, expires] =
+        let [_id, _pos, staker, target, stake, created, expires] =
           await contracts.goalManager.goals(goalId);
         setGoal({
           staker: staker,

@@ -115,7 +115,7 @@ describe("Strava", () => {
     });
 
     it("calls the activities endpoint", async () => {
-      let response = await strava.getProgress(user, 1625192014, 1625292014);
+      let response = await strava.getProgress(user, "1625192014", "1625292014");
       expect(fetchMock).toBeCalledWith(
         "https://www.strava.com/api/v3/athlete/activities?page=1&per_page=200&after=1625192014&before=1625292014",
         {
@@ -127,7 +127,7 @@ describe("Strava", () => {
     });
 
     it("returns the sum of all distances for non-manual activities", async () => {
-      let response = await strava.getProgress(user, 1625192014, 1625292014);
+      let response = await strava.getProgress(user, "1625192014", "1625292014");
       expect(response.totalDistance).toBe(80001.5);
     });
   });

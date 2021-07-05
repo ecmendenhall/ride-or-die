@@ -1,0 +1,11 @@
+{
+  "name": "@ride-or-die/keeper",
+  "version": "0.1.0",
+  "author": "Connor Mendenhall <cmendenhall@8thlight.com>",
+  "homepage": "https://github.com/ecmendenhall/hackmoney#readme",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ecmendenhall/hackmoney.git"
+  }
+}

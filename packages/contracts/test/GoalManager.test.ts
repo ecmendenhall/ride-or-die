@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { waffle, ethers } from "hardhat";
-import { parseEther } from "ethers/lib/utils";
+import { parseEther, parseUnits } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
@@ -84,14 +84,16 @@ describe("GoalManager", function () {
       await goalManager
         .connect(goalSetter)
         .createGoal(100, STAKE_AMOUNT, DEADLINE, IPFS_CID);
-      let [staker, target, stake, created, expires] = await goalManager.goals(
-        1
-      );
-
+      let [id, pos, staker, target, stake, created, expires] =
+        await goalManager.goals(1);
+      expect(id).to.equal(1);
+      expect(pos).to.equal(0);
       expect(staker).to.equal(goalSetter.address);
       expect(target).to.equal(100);
       expect(expires).to.equal(DEADLINE);
       expect(stake).to.equal(STAKE_AMOUNT);
+      let activeGoals = await goalManager.activeGoals();
+      expect(activeGoals).to.eql([parseUnits("1", "wei")]);
     });
 
     describe("Stake transfers", async function () {
@@ -173,9 +175,10 @@ describe("GoalManager", function () {
     });
 
     it("Deletes the goal data", async function () {
-      let [staker, target, stake, created, expires] = await goalManager.goals(
-        1
-      );
+      let [id, pos, staker, target, stake, created, expires] =
+        await goalManager.goals(1);
+      expect(id).to.equal(0);
+      expect(pos).to.equal(0);
       expect(staker).to.equal("0x0000000000000000000000000000000000000000");
       expect(target).to.equal(0);
       expect(stake).to.equal(0);
@@ -186,6 +189,11 @@ describe("GoalManager", function () {
     it("Deletes the staker address", async function () {
       let goalId = await goalManager.goalsByStaker(goalSetter.address);
       expect(goalId).to.equal(0);
+    });
+
+    it("Deletes the goal from the active array", async function () {
+      let activeGoals = await goalManager.activeGoals();
+      expect(activeGoals).to.eql([]);
     });
 
     it("Withdraws vault balance to msg.sender", async function () {
@@ -213,9 +221,10 @@ describe("GoalManager", function () {
         .connect(goalSetter)
         .createGoal(100, STAKE_AMOUNT, DEADLINE, IPFS_CID);
       await goalManager.connect(goalSetter).liquidateGoal(1);
-      let [staker, target, stake, created, expires] = await goalManager.goals(
-        1
-      );
+      let [id, pos, staker, target, stake, created, expires] =
+        await goalManager.goals(1);
+      expect(id).to.equal(0);
+      expect(pos).to.equal(0);
       expect(staker).to.equal("0x0000000000000000000000000000000000000000");
       expect(target).to.equal(0);
       expect(stake).to.equal(0);

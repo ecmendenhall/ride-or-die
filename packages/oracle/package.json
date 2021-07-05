@@ -1,0 +1,23 @@
+{
+  "name": "@ride-or-die/oracle",
+  "version": "0.1.0",
+  "author": "Connor Mendenhall <cmendenhall@8thlight.com>",
+  "homepage": "https://github.com/ecmendenhall/hackmoney#readme",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ecmendenhall/hackmoney.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ecmendenhall/hackmoney/issues"
+  },
+  "dependencies": {
+    "@types/node": "^16.0.0",
+    "@types/node-fetch": "^2.5.10",
+    "ethers": "^5.4.1",
+    "node-fetch": "^2.6.1",
+    "toad-scheduler": "^1.4.0",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.5"
+  }
+}

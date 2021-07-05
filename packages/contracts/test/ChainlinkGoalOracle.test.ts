@@ -4,7 +4,7 @@ import { parseEther, formatBytes32String, toUtf8Bytes, getAddress } from "ethers
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { MockGoalManager, MockChainlinkOracle, ChainlinkGoalOracle } from "../typechain";
 
-describe("Vault", function () {
+describe("ChainlinkGoalOracle", function () {
   let owner: SignerWithAddress,
     chainlinkGoalOracle: ChainlinkGoalOracle,
     mockGoalManager: MockGoalManager,
@@ -52,7 +52,7 @@ describe("Vault", function () {
     });
   });
 
-  describe("Contract setup", async function () {
+  describe("Chainlink request", async function () {
     it("Constructs a verification URL", async function () {
       let [staker, target, stake, created, expires] = await mockGoalManager.goals(1);
       expect(await chainlinkGoalOracle.verificationURL(1)).to.equal(
