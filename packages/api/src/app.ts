@@ -81,6 +81,7 @@ app.get("/progress/:address/", async (req, res) => {
       before as string
     );
     res.status(200).send(progressData);
+    //res.status(200).send({ totalDistance: 150001 });
   } else {
     res.status(404);
   }

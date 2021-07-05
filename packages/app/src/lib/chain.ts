@@ -19,6 +19,7 @@ const loadContracts = (provider: ethers.providers.Web3Provider) => {
     dai: getDaiContract(provider),
     goalManager: getGoalManagerContract(provider),
     vault: getVaultContract(provider),
+    deadpool: getDeadpoolContract(provider),
   };
 };
 
@@ -44,6 +45,14 @@ const getVaultContract = (provider: ethers.providers.Web3Provider) => {
   return new ethers.Contract(
     config.contracts.vault.address,
     config.contracts.vault.abi,
+    provider
+  );
+};
+
+const getDeadpoolContract = (provider: ethers.providers.Web3Provider) => {
+  return new ethers.Contract(
+    config.contracts.deadpool.address,
+    config.contracts.deadpool.abi,
     provider
   );
 };

@@ -8,6 +8,7 @@ import {
   MockCurve3Pool,
   MockStakeDAOVault,
   Vault,
+  Deadpool,
 } from "../typechain";
 
 describe("Vault", function () {
@@ -18,7 +19,8 @@ describe("Vault", function () {
     mock3crv: MockERC20,
     mockCurve3Pool: MockCurve3Pool,
     mockStakeDAOvault: MockStakeDAOVault,
-    vault: Vault;
+    vault: Vault,
+    deadpool: Deadpool;
 
   beforeEach(async function () {
     [owner, staker, thirdParty] = await ethers.getSigners();
@@ -40,12 +42,16 @@ describe("Vault", function () {
     );
     mockStakeDAOvault = await MockStakeDAOVault.deploy(mock3crv.address);
 
+    const Deadpool = await ethers.getContractFactory("Deadpool");
+    deadpool = await Deadpool.deploy(mockStakeDAOvault.address);
+
     const Vault = await ethers.getContractFactory("Vault");
     vault = await Vault.deploy(
       mockStakeDAOvault.address,
       mockDai.address,
       mock3crv.address,
-      mockCurve3Pool.address
+      mockCurve3Pool.address,
+      deadpool.address
     );
   });
 
@@ -60,6 +66,10 @@ describe("Vault", function () {
 
     it("Has the 3Crv token address", async function () {
       expect(await vault.threeCrv()).to.equal(mock3crv.address);
+    });
+
+    it("Has the Deadpool address", async function () {
+      expect(await vault.deadpool()).to.equal(deadpool.address);
     });
   });
 
@@ -129,6 +139,39 @@ describe("Vault", function () {
       expect(await vault.balanceOf(staker.address)).to.equal(0);
       expect(await mockDai.balanceOf(staker.address)).to.equal(
         parseEther("2497.50")
+      );
+    });
+  });
+
+  describe("Liquidationss", async function () {
+    beforeEach(async function () {
+      let deposit = parseEther("2500");
+      await mockDai.mint(owner.address, deposit);
+      await mockDai.connect(owner).approve(vault.address, deposit);
+      await vault.connect(owner).deposit(staker.address, deposit);
+    });
+
+    it("Only owner can liquidate", async function () {
+      expect(
+        vault.connect(staker).liquidate(staker.address)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("Liquidation burns vault shares", async function () {
+      await vault.connect(owner).liquidate(staker.address);
+      expect(await vault.balanceOf(staker.address)).to.equal(parseEther("0"));
+    });
+
+    it("Liquidation transfers vault shares", async function () {
+      await vault.connect(owner).liquidate(staker.address);
+      expect(await vault.balanceOf(staker.address)).to.equal(parseEther("0"));
+    });
+
+    it("Liquidation sends sd3Crv to deadpool", async function () {
+      await vault.connect(owner).liquidate(staker.address);
+      expect(await mockStakeDAOvault.balanceOf(vault.address)).to.equal(0);
+      expect(await mockStakeDAOvault.balanceOf(deadpool.address)).to.equal(
+        parseEther("2469.135802469135802469")
       );
     });
   });

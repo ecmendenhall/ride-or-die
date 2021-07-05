@@ -23,15 +23,39 @@ export function Staking() {
 }
 
 export function Deadpool() {
+  const { eth, balances, contracts, linkedAddress, setBalances } =
+    useContext(Context);
+
+  const redeemDeadpoolShares = async () => {
+    if (contracts && eth && setBalances) {
+      let { signer } = eth;
+      let { vault, deadpool } = contracts;
+      let balance = await deadpool.balanceOf(linkedAddress);
+      await deadpool.connect(signer).redeemShares(balance);
+      let vaultBalance = await vault.balanceOf(linkedAddress);
+      let deadpoolBalance = await deadpool.balanceOf(linkedAddress);
+      let deadpoolSd3CrvBalance = await deadpool.shareValue(deadpoolBalance);
+      setBalances({
+        vault: vaultBalance,
+        deadpool: deadpoolBalance,
+        deadpoolSd3Crv: deadpoolSd3CrvBalance,
+      });
+    }
+  };
+
   return (
     <div>
       <div>
         <label className="text-pink-600 font-semibold">Deadpool</label>
         <div className="mb-2">
-          <p>12.3 DIE-sdCrv</p>
+          <p>{formatBalance(balances?.deadpool || 0)} DIE-sdCrv</p>
+          <p>{formatBalance(balances?.deadpoolSd3Crv || 0)} sdCrv</p>
         </div>
       </div>
-      <button className="bg-pink-600 hover:bg-pink-700 rounded-lg shadow py-1 px-2 text-yellow-50">
+      <button
+        onClick={redeemDeadpoolShares}
+        className="bg-pink-600 hover:bg-pink-700 rounded-lg shadow py-1 px-2 text-yellow-50"
+      >
         Claim
       </button>
     </div>

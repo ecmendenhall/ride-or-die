@@ -135,7 +135,7 @@ export function ActiveGoal() {
           <div>
             <label className="text-pink-600 font-semibold">Distance</label>
             <div className="relative flex w-full flex-wrap items-stretch mb-3">
-              <p>{formatUnits(goal.target, "wei")} km</p>
+              <p>{formatUnits(goal.target.div(1000), "wei")} km</p>
             </div>
           </div>
           <div>

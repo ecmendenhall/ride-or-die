@@ -9,6 +9,7 @@ import {
   MockCurve3Pool,
   MockStakeDAOVault,
   GoalOracle,
+  Deadpool,
   Vault,
 } from "../typechain";
 
@@ -24,6 +25,7 @@ describe("GoalManager", function () {
   let mockStakeDAOvault: MockStakeDAOVault;
   let vault: Vault;
   let goalOracle: GoalOracle;
+  let deadpool: Deadpool;
   let mockDai: MockERC20;
   let mock3crv: MockERC20;
   let goalManager: GoalManager;
@@ -48,21 +50,26 @@ describe("GoalManager", function () {
     );
     mockStakeDAOvault = await MockStakeDAOVault.deploy(mock3crv.address);
 
+    const Deadpool = await ethers.getContractFactory("Deadpool");
+    deadpool = await Deadpool.deploy(mockStakeDAOvault.address);
+
     const Vault = await ethers.getContractFactory("Vault");
     vault = await Vault.deploy(
       mockStakeDAOvault.address,
       mockDai.address,
       mock3crv.address,
-      mockCurve3Pool.address
+      mockCurve3Pool.address,
+      deadpool.address
     );
 
     const GoalOracle = await ethers.getContractFactory("GoalOracle");
     goalOracle = await GoalOracle.deploy();
 
     const GoalManager = await ethers.getContractFactory("GoalManager");
-    goalManager = await GoalManager.deploy(mockDai.address, vault.address, goalOracle.address);
+    goalManager = await GoalManager.deploy(mockDai.address, vault.address, goalOracle.address, deadpool.address);
 
     await vault.connect(owner).transferOwnership(goalManager.address);
+    await deadpool.connect(owner).transferOwnership(goalManager.address);
 
     await mockDai.burnFrom(
       goalSetter.address,
@@ -85,6 +92,10 @@ describe("GoalManager", function () {
 
     it("Has an oracle address", async function () {
       expect(await goalManager.oracle()).to.equal(goalOracle.address);
+    });
+
+    it("Has a deadpool address", async function () {
+      expect(await goalManager.deadpool()).to.equal(deadpool.address);
     });
   });
 
@@ -216,6 +227,12 @@ describe("GoalManager", function () {
           daiWithdrawalAmount
         );
       });
+
+      it("Issues deadpool shares equal to target distance in km", async function () {
+        expect(await deadpool.balanceOf(goalSetter.address)).to.equal(
+          parseEther("0.100")
+        );
+      });
     });
 
     describe("Verifying completion", () => {
@@ -253,6 +270,14 @@ describe("GoalManager", function () {
       expect(stake).to.equal(0);
       expect(created).to.equal(0);
       expect(expires).to.equal(0);
+    });
+
+    it("Sends liquidated stake to deadpool", async function () {
+      await goalManager
+        .connect(goalSetter)
+        .createGoal(100, STAKE_AMOUNT, DEADLINE, IPFS_CID);
+      await goalManager.connect(goalSetter).liquidateGoal(1);
+      expect(await mockStakeDAOvault.balanceOf(deadpool.address)).to.equal(parseEther("2469.135802469135802469"));
     });
 
     it("Reverts unless goal has expired", async function () {

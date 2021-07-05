@@ -8,9 +8,6 @@
     "type": "git",
     "url": "git+https://github.com/ecmendenhall/hackmoney.git"
   },
-  "bugs": {
-    "url": "https://github.com/ecmendenhall/hackmoney/issues"
-  },
   "dependencies": {
     "@types/node": "^16.0.0",
     "@types/node-fetch": "^2.5.10",

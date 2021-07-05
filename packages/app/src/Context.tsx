@@ -22,6 +22,7 @@ interface Contracts {
   dai: ethers.Contract;
   goalManager: ethers.Contract;
   vault: ethers.Contract;
+  deadpool: ethers.Contract;
 }
 
 interface StravaProfile {
@@ -42,6 +43,7 @@ interface Goal {
 interface Balances {
   vault: BigNumber;
   deadpool: BigNumber;
+  deadpoolSd3Crv: BigNumber;
 }
 
 interface IContext {
@@ -120,9 +122,14 @@ export function Provider<T>({ children }: React.PropsWithChildren<T>) {
         let profile = await api.stravaProfile();
         setStravaProfile(profile);
         let vaultBalance = await contracts.vault.balanceOf(linkedAddress);
+        let deadpoolBalance = await contracts.deadpool.balanceOf(linkedAddress);
+        let deadpoolSd3CrvBalance = await contracts.deadpool.shareValue(
+          deadpoolBalance
+        );
         setBalances({
           vault: vaultBalance,
-          deadpool: vaultBalance,
+          deadpool: deadpoolBalance,
+          deadpoolSd3Crv: deadpoolSd3CrvBalance,
         });
         let goalId = await contracts.goalManager.goalsByStaker(linkedAddress);
         if (goalId.gt(0)) {
