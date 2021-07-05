@@ -15,10 +15,20 @@ interface IVault {
     function withdraw(address depositor) external returns (uint256);
 }
 
+interface IOracle {
+    struct Progress {
+        uint256 val;
+        uint256 updated;
+    }
+
+    function progress(address staker) external view returns (Progress memory);
+}
+
 contract GoalManager is ERC721 {
     using SafeERC20 for IERC20;
     IERC20 public token;
     IVault public vault;
+    IOracle public oracle;
 
     struct Goal {
         uint256 id;
@@ -35,11 +45,12 @@ contract GoalManager is ERC721 {
 
     uint256[] public active;
 
-    constructor(address _token, address _vault)
+    constructor(address _token, address _vault, address _oracle)
         ERC721("Ride or Die Goal Token", "RIDE")
     {
         token = IERC20(_token);
         vault = IVault(_vault);
+        oracle = IOracle(_oracle);
     }
 
     function createGoal(
@@ -74,6 +85,9 @@ contract GoalManager is ERC721 {
     }
 
     function redeemGoal(uint256 goalId) public {
+        Goal memory goal = goals[goalId];
+        uint256 progress = oracle.progress(goal.staker).val;
+        require(progress >= goal.target, 'Goal is incomplete');
         _burn(goalId);
         _remove(goalId);
         delete goalsByStaker[goals[goalId].staker];
@@ -82,6 +96,10 @@ contract GoalManager is ERC721 {
     }
 
     function liquidateGoal(uint256 goalId) public {
+        Goal memory goal = goals[goalId];
+        uint256 progress = oracle.progress(goal.staker).val;
+        require(block.timestamp >= goal.expires, 'Goal has not expired');
+        require(progress < goal.target, 'Goal is complete');
         _burn(goalId);
         _remove(goalId);
     }
