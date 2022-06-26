@@ -36,7 +36,7 @@
     "jest": "^27.0.6",
     "jest-fetch-mock": "^3.0.3",
     "jsonwebtoken": "^8.5.1",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "nodemon": "^2.0.7",
     "pg": "^8.6.0",
     "prettier": "^2.3.2",
