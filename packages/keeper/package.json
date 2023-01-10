@@ -13,7 +13,7 @@
     "@types/node": "^16.0.0",
     "@types/node-fetch": "^2.5.10",
     "ethers": "^5.4.1",
-    "luxon": "^1.27.0",
+    "luxon": "^1.28.1",
     "node-fetch": "^2.6.1",
     "toad-scheduler": "^1.4.0",
     "ts-node": "^10.0.0",
